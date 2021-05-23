@@ -10,9 +10,14 @@ import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
@@ -115,6 +120,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jScrollPane2.setOpaque(false);
 
         jEditorPane1.setBorder(null);
+        jEditorPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jEditorPane1MouseReleased(evt);
+            }
+        });
         jEditorPane1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jEditorPane1KeyPressed(evt);
@@ -255,7 +265,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_newNoteJBActionPerformed
 
     private void lockedJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockedJCBActionPerformed
-        jEditorPane1.setEditable(model.toggleLock());
+        boolean b = model.toggleLock();
+        jEditorPane1.setEditable(b);
+        publish(b ? "write enabled": "read only");        
     }//GEN-LAST:event_lockedJCBActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
@@ -302,6 +314,16 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         posX = evt.getX();
         posY = evt.getY();
     }//GEN-LAST:event_formMousePressed
+
+    private void jEditorPane1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jEditorPane1MouseReleased
+        String selectedString = jEditorPane1.getSelectedText();
+        if (selectedString != null && !selectedString.isBlank()) {
+            StringSelection selection = new StringSelection(selectedString);
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cb.setContents(selection, null);
+            publish("text copied");
+        }
+    }//GEN-LAST:event_jEditorPane1MouseReleased
 
     boolean ctrl;
 
@@ -381,8 +403,19 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 result.setForeground(selected.getFg());
                 return result;
             }
-
         };
+    }
+
+    private void publish(String message) {
+        new Thread(() -> {
+            try {
+                statusJL.setText(message);
+                Thread.sleep(3000);
+                statusJL.setText("");
+            } catch (InterruptedException ex) {
+                Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }).start();
     }
 
     boolean isUpdating = false;
