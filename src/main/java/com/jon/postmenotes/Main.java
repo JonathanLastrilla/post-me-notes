@@ -16,7 +16,6 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
@@ -40,7 +39,7 @@ public class Main {
     private static final String schemesFileName = "s.chemes";
     private static final String versionDirectory = "v.ersion";
     public static final String iconName = "/images/icon.jpg";
-    public static final File homeDir = new File(System.getProperty("user.dir"), homeName);
+    public static final File homeDir = new File(System.getProperty("user.home"), homeName);
     public static final File dataFile = new File(homeDir, dataFileName);
     public static final File schemeFile = new File(homeDir, schemesFileName);
     private NotesManager manager = NotesManager.getInstance();
