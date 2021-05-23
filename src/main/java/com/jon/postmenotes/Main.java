@@ -48,7 +48,9 @@ public class Main {
 
     static {
         try {
-
+            if (!homeDir.exists()) {
+                homeDir.mkdirs();
+            }
             final Properties properties = new Properties();
             properties.load(Main.class.getClassLoader().getResourceAsStream("project.properties"));
             File versionFile = new File(homeDir, "v.ersion");
@@ -58,11 +60,11 @@ public class Main {
                 Scanner s = new Scanner(versionFile);
                 if (s.hasNext()) {
                     String detectedVersion = s.nextLine();
-                    if(!currentVersion.equals(detectedVersion)){
+                    if (!currentVersion.equals(detectedVersion)) {
                         JOptionPane.showMessageDialog(null, "Another version detected, backup d.data file first");
                         System.exit(1);
-                    }else{
-                        System.out.println("Detected version: "+currentVersion);
+                    } else {
+                        System.out.println("Detected version: " + currentVersion);
                     }
                 }
 
@@ -79,7 +81,6 @@ public class Main {
     }
 
     public Main() {
-        initData();
         initUI();
         initApp();
     }
@@ -97,12 +98,6 @@ public class Main {
 
     public final void initApp() {
 
-    }
-
-    public final void initData() {
-        if (!homeDir.exists()) {
-            homeDir.mkdirs();
-        }
     }
 
     public final void initUI() {
