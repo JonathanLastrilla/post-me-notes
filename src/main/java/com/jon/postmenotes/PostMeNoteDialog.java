@@ -23,8 +23,10 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.ColorUIResource;
 
 /**
  *
@@ -61,7 +63,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             updateColr(model.getColorScheme());
             colorList.setSelectedItem(model.getColorScheme());
         }
-        colorListJCB.setRenderer(schemesRenderer());  
+        colorListJCB.setRenderer(schemesRenderer());
     }
 
     /**
@@ -169,6 +171,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(lockedJCB);
 
+        colorListJCB.setToolTipText("select color themes");
         colorListJCB.setOpaque(false);
         colorListJCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -294,7 +297,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
     private void jEditorPane1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jEditorPane1MouseReleased
         String selectedString = jEditorPane1.getSelectedText();
-        if (selectedString != null && !selectedString.isBlank()) {
+        if (!jEditorPane1.isEditable() && selectedString != null && !selectedString.isBlank()) {
             StringSelection selection = new StringSelection(selectedString);
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             cb.setContents(selection, null);
@@ -314,13 +317,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             @Override
             public void removeUpdate(DocumentEvent arg0) {
                 manageUpdate();
-                model.setText(jEditorPane1.getText());
+
             }
 
             @Override
             public void changedUpdate(DocumentEvent arg0) {
                 manageUpdate();
-                model.setText(jEditorPane1.getText());
             }
         };
     }
@@ -363,7 +365,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
         fgSetter.accept(jEditorPane1);
         fgSetter.accept(statusJL);
-
+        fgSetter.accept(newNoteJB);
+        UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
         model.setColorScheme(scheme);
 
     }

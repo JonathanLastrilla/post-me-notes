@@ -62,8 +62,7 @@ public class DefaultNoteInstance implements Note {
     }
 
     @Override
-    public void setText(String newText) {
-        System.out.println("new data \n" + newText);
+    public void setText(String newText) {        
         this.data = newText;
         setTimeEdited(Instant.now());
     }
