@@ -50,7 +50,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jEditorPane1.setEditable(model.isLocked());
         jEditorPane1.setText(model.getText());
         jEditorPane1.getDocument().addDocumentListener(editorListener());
-        lockedJCB.setSelected(model.isLocked());        
+        lockedJCB.setSelected(model.isLocked());
 
         DefaultComboBoxModel colorList = new DefaultComboBoxModel(
                 ColorScheme.SCHEMES.stream().toArray()
@@ -59,8 +59,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
         if (this.model.getColorScheme() != null) {
             updateColr(model.getColorScheme());
+            colorList.setSelectedItem(model.getColorScheme());
         }
-        colorListJCB.setRenderer(schemesRenderer());
+        colorListJCB.setRenderer(schemesRenderer());  
     }
 
     /**
@@ -248,7 +249,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private void lockedJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockedJCBActionPerformed
         boolean b = model.toggleLock();
         jEditorPane1.setEditable(b);
-        publish(b ? "write enabled": "read only");        
+        publish(b ? "write enabled" : "read only");
     }//GEN-LAST:event_lockedJCBActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
