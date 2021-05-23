@@ -48,7 +48,8 @@ public class NotesManager {
             System.out.println("loading notes "+read.size());
             notes.addAll(read);
         }catch(Exception e){
-            e.printStackTrace();
+            
+//            e.printStackTrace();
         }
     }
 
