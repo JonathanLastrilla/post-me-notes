@@ -50,8 +50,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jEditorPane1.setEditable(model.isLocked());
         jEditorPane1.setText(model.getText());
         jEditorPane1.getDocument().addDocumentListener(editorListener());
-        lockedJCB.setSelected(model.isLocked());
-        issueRecordJL.setText("<html><a href=\"\">" + model.getIssueRecord() + "</a></html>");
+        lockedJCB.setSelected(model.isLocked());        
 
         DefaultComboBoxModel colorList = new DefaultComboBoxModel(
                 ColorScheme.SCHEMES.stream().toArray()
@@ -80,8 +79,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 return true;
             }
         };
-        issueRecordJL = new javax.swing.JLabel();
-        codeReviewJL = new javax.swing.JLabel();
         statusJL = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         newNoteJB = new javax.swing.JButton();
@@ -138,16 +135,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jScrollPane2.setViewportView(jEditorPane1);
 
-        issueRecordJL.setText("jLabel1");
-        issueRecordJL.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        codeReviewJL.setText("jLabel2");
-        codeReviewJL.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                codeReviewJLMousePressed(evt);
-            }
-        });
-
         statusJL.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         statusJL.setText(" ");
 
@@ -197,8 +184,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
                     .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(issueRecordJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(codeReviewJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -213,11 +198,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(issueRecordJL)
-                .addGap(9, 9, 9)
-                .addComponent(codeReviewJL)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusJL, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -301,11 +282,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_colorListJCBActionPerformed
 
-    private void codeReviewJLMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_codeReviewJLMousePressed
-        posX = evt.getX();
-        posY = evt.getY();
-    }//GEN-LAST:event_codeReviewJLMousePressed
-
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
 //        setLocation(evt.getXOnScreen() - posX, evt.getYOnScreen() - posY);
     }//GEN-LAST:event_formMouseDragged
@@ -385,8 +361,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         bgSetter.accept(jScrollPane2);
 
         fgSetter.accept(jEditorPane1);
-        fgSetter.accept(issueRecordJL);
-        fgSetter.accept(codeReviewJL);
         fgSetter.accept(statusJL);
 
         model.setColorScheme(scheme);
@@ -422,9 +396,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     int posX;
     int posY;
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel codeReviewJL;
     private javax.swing.JComboBox<String> colorListJCB;
-    private javax.swing.JLabel issueRecordJL;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
