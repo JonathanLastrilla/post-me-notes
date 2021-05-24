@@ -173,7 +173,7 @@ public class Main {
     public void restoreSavedNotes() {
         manager.getSavedNotes()
                 .stream()
-                //                .filter(n -> !n.isHidden())
+                .filter(n -> !n.isHidden())
                 .map(PostMeNoteDialog::new)
                 .forEach(dialog -> {
                     EventQueue.invokeLater(() -> {
@@ -181,8 +181,6 @@ public class Main {
                         dialog.setVisible(true);
                     });
                 });
-        ;
-
     }
 
     public Thread shutdownHook() {

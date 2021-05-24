@@ -7,6 +7,8 @@ package com.jon.postmenotes;
 
 import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.NotesManager;
+import java.awt.Dialog;
+import java.awt.EventQueue;
 import javax.swing.DefaultComboBoxModel;
 
 /**
@@ -20,13 +22,12 @@ public class NotesList extends javax.swing.JFrame {
      */
     public NotesList() {
         initComponents();
-        setTitle(System.getProperty("user.name")+ " - Notest List");
-        setIconImage(Main.createImageIcon(Main.iconName,"").getImage());
+        setTitle(System.getProperty("user.name") + " - Notest List");
+        setIconImage(Main.createImageIcon(Main.iconName, "").getImage());
         DefaultComboBoxModel notesCBModel = new DefaultComboBoxModel(
                 manager.getSavedNotes()
                         .stream()
                         .filter(Note::isHidden)
-                        .map(Note::toString)
                         .toArray());
         notesListJCB.setModel(notesCBModel);
     }
@@ -42,12 +43,17 @@ public class NotesList extends javax.swing.JFrame {
 
         notesListJCB = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        restoreJB = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("PostItList");
 
-        jButton1.setText("Restore");
+        restoreJB.setText("Restore");
+        restoreJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                restoreJBActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -59,7 +65,7 @@ public class NotesList extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(notesListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)
+                        .addComponent(restoreJB)
                         .addGap(0, 2, Short.MAX_VALUE))
                     .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -70,7 +76,7 @@ public class NotesList extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(notesListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(restoreJB))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
                 .addContainerGap())
@@ -78,11 +84,21 @@ public class NotesList extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-  
-    private final NotesManager manager = NotesManager.getInstance();    
+
+    private void restoreJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restoreJBActionPerformed
+        Note n = (Note) notesListJCB.getModel().getSelectedItem();
+        n.setHidden(false);
+        final PostMeNoteDialog dialog = new PostMeNoteDialog(n);
+        EventQueue.invokeLater(() -> {
+            dialog.setSizeExternal();
+            dialog.setVisible(true);
+        });
+    }//GEN-LAST:event_restoreJBActionPerformed
+
+    private final NotesManager manager = NotesManager.getInstance();
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JComboBox<String> notesListJCB;
+    private javax.swing.JButton restoreJB;
     // End of variables declaration//GEN-END:variables
 }
