@@ -16,6 +16,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -225,7 +226,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             colorList.setSelectedItem(model.getColorScheme());
         }
         colorListJCB.setRenderer(schemesRenderer());
-        
+
         jScrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
     }
 
@@ -269,7 +270,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 this.model.setScreenLocation(comp.getLocationOnScreen());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            LOG.log(Level.SEVERE, e, () -> e.getMessage());
         }
     }//GEN-LAST:event_formComponentMoved
 
@@ -406,6 +407,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     boolean isUpdating = false;
     int posX;
     int posY;
+    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
     private javax.swing.JEditorPane jEditorPane1;

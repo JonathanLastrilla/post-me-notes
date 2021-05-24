@@ -64,7 +64,7 @@ public class Main {
                         JOptionPane.showMessageDialog(null, "Another version detected, backup d.data file first");
                         System.exit(1);
                     } else {
-                        System.out.println("Detected version: " + currentVersion);
+                        LOG.info("Detected version: " + currentVersion);
                     }
                 }
 
@@ -186,7 +186,7 @@ public class Main {
     public Thread shutdownHook() {
         return new Thread(() -> {
             NotesManager.serialize();
-            System.out.println("saving data.." + manager.getSavedNotes().size());
+            LOG.info("saving data.." + manager.getSavedNotes().size());
         });
     }
 
