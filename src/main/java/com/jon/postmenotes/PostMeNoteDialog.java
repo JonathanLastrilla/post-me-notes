@@ -23,6 +23,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -45,25 +46,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         super();
         initComponents();
         this.model = model;
-        setIconImage(Main.createImageIcon(Main.iconName, "").getImage());
-        if (model.getScreenLocation() != null) {
-            setLocation(model.getScreenLocation());
-        }
-        jEditorPane1.setEditable(model.isLocked());
-        jEditorPane1.setText(model.getText());
-        jEditorPane1.getDocument().addDocumentListener(editorListener());
-        lockedJCB.setSelected(model.isLocked());
-
-        DefaultComboBoxModel colorList = new DefaultComboBoxModel(
-                ColorScheme.SCHEMES.stream().toArray()
-        );
-        colorListJCB.setModel(colorList);
-
-        if (this.model.getColorScheme() != null) {
-            updateColr(model.getColorScheme());
-            colorList.setSelectedItem(model.getColorScheme());
-        }
-        colorListJCB.setRenderer(schemesRenderer());
+        initComponents2();
     }
 
     /**
@@ -221,6 +204,30 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initComponents2() {
+        setIconImage(Main.createImageIcon(Main.iconName, "").getImage());
+        if (model.getScreenLocation() != null) {
+            setLocation(model.getScreenLocation());
+        }
+        jEditorPane1.setEditable(model.isLocked());
+        jEditorPane1.setText(model.getText());
+        jEditorPane1.getDocument().addDocumentListener(editorListener());
+        lockedJCB.setSelected(model.isLocked());
+
+        DefaultComboBoxModel colorList = new DefaultComboBoxModel(
+                ColorScheme.SCHEMES.stream().toArray()
+        );
+        colorListJCB.setModel(colorList);
+
+        if (this.model.getColorScheme() != null) {
+            updateColr(model.getColorScheme());
+            colorList.setSelectedItem(model.getColorScheme());
+        }
+        colorListJCB.setRenderer(schemesRenderer());
+        
+        jScrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+    }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
         if (!ctrl && evt.isControlDown()) {
