@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jon</groupId>
     <artifactId>PostMeNotes</artifactId>
-    <version>1.0.1</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -11,7 +11,12 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <name>Sticky Note Application</name>
-    <description>I need a post-it note that I can lock, yes that's why.</description>
+    <description>Version 1.0
+- auto save.
+- not title will be the first line of the note.
+- note closed after restoring will be shown in the same position when it was closed.
+- sample colors provided.
+</description>
     <build>
         <resources>
             <resource>

@@ -73,11 +73,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconImage(null);
         setType(java.awt.Window.Type.POPUP);
-        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                formMouseDragged(evt);
-            }
-        });
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
@@ -292,10 +287,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             updateColr(selected.get());
         }
     }//GEN-LAST:event_colorListJCBActionPerformed
-
-    private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
-//        setLocation(evt.getXOnScreen() - posX, evt.getYOnScreen() - posY);
-    }//GEN-LAST:event_formMouseDragged
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
         posX = evt.getX();
