@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author jlastril
  */
 public final class ColorScheme implements Serializable {
-    private static Logger LOG = Logger.getLogger(ColorScheme.class.getName());
+    private static final Logger LOG = Logger.getLogger(ColorScheme.class.getName());
     public static long serialVersionUID = 3254532535L;
     private Color bg;
     private Color fg;
@@ -48,7 +48,7 @@ public final class ColorScheme implements Serializable {
                     String bg = line[2];                    
                     SCHEMES.add(new ColorScheme(name, hex2Rgb(bg), hex2Rgb(fg)));
                 }
-                LOG.info("loaded "+SCHEMES.size());
+                LOG.info("loaded color schemes "+SCHEMES.size());
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(ColorScheme.class.getName()).log(Level.SEVERE, null, ex);
             }

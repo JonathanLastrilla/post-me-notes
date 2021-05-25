@@ -191,7 +191,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Windows".equals(info.getName())) {

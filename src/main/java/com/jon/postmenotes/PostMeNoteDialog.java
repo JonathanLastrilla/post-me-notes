@@ -104,6 +104,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jScrollPane2.setOpaque(false);
 
         jEditorPane1.setBorder(null);
+        jEditorPane1.setFont(new java.awt.Font("Century Gothic", 0, 16)); // NOI18N
         jEditorPane1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jEditorPane1MouseReleased(evt);
@@ -155,7 +156,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(lockedJCB);
 
-        colorListJCB.setToolTipText("select color themes");
+        colorListJCB.setToolTipText("sticky color");
         colorListJCB.setOpaque(false);
         colorListJCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -171,11 +172,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
-                    .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -226,8 +227,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             colorList.setSelectedItem(model.getColorScheme());
         }
         colorListJCB.setRenderer(schemesRenderer());
-
-        jScrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+        
+//        jScrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -349,6 +350,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                             Thread.sleep(2000);
                             statusJL.setText("");
                             setTitle(model.getTitle());
+                            
                         } catch (InterruptedException ex) {
 
                         }
@@ -370,10 +372,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         bgSetter.accept(jPanel1);
         bgSetter.accept(jEditorPane1);
         bgSetter.accept(jScrollPane2);
+        bgSetter.accept(colorListJCB);
 
         fgSetter.accept(jEditorPane1);
         fgSetter.accept(statusJL);
         fgSetter.accept(newNoteJB);
+        fgSetter.accept(colorListJCB);
         UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
         model.setColorScheme(scheme);
 
