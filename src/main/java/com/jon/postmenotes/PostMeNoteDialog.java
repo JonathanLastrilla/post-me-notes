@@ -16,7 +16,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -24,7 +23,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JList;
-import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -227,8 +225,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             colorList.setSelectedItem(model.getColorScheme());
         }
         colorListJCB.setRenderer(schemesRenderer());
-        
-//        jScrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+        setTitle(model.getTitle());
+
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -350,7 +348,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                             Thread.sleep(2000);
                             statusJL.setText("");
                             setTitle(model.getTitle());
-                            
+
                         } catch (InterruptedException ex) {
 
                         }

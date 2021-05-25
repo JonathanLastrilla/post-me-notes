@@ -113,10 +113,14 @@ public class DefaultNoteInstance implements Note {
 
         return m.find() ? m.group(1) : "";
     }
+    
+    private String getFirstLine(String data){
+        return data.isBlank() ? "" : data.split("\n")[0];        
+    }
 
     @Override
     public String getTitle() {
-        return matchFirstLine(data);
+        return getFirstLine(data);
     }
 
     @Override
