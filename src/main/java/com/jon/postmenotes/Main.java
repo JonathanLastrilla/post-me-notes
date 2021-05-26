@@ -43,6 +43,8 @@ public class Main {
     public static final File dataFile = new File(homeDir, dataFileName);
     public static final File schemeFile = new File(homeDir, schemesFileName);
     private NotesManager manager = NotesManager.getInstance();
+    
+    private final static  Properties properties = new Properties();
 
     Note dummy;
 
@@ -51,7 +53,7 @@ public class Main {
             if (!homeDir.exists()) {
                 homeDir.mkdirs();
             }
-            final Properties properties = new Properties();
+            
             properties.load(Main.class.getClassLoader().getResourceAsStream("project.properties"));
             File versionFile = new File(homeDir, "v.ersion");
             String currentVersion = properties.getProperty("version");
@@ -116,7 +118,7 @@ public class Main {
                                 .getScaledInstance(tray.getTrayIconSize().height,
                                         tray.getTrayIconSize().height,
                                         Image.SCALE_DEFAULT),
-                        "MeNotes",
+                        String.format("PostMeNotes - %s", properties.getProperty("version")),
                         popUp);
 
                 tray.add(icon);

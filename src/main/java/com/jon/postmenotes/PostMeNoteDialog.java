@@ -23,6 +23,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -86,6 +87,14 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 formComponentResized(evt);
             }
         });
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+                formWindowLostFocus(evt);
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -97,7 +106,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jScrollPane2.setOpaque(false);
 
         jEditorPane1.setBorder(null);
-        jEditorPane1.setFont(new java.awt.Font("Century Gothic", 0, 16)); // NOI18N
+        jEditorPane1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         jEditorPane1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jEditorPane1MouseReleased(evt);
@@ -302,6 +311,15 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             publish("text copied");
         }
     }//GEN-LAST:event_jEditorPane1MouseReleased
+
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
+    }//GEN-LAST:event_formWindowGainedFocus
+
+    private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
+        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+    }//GEN-LAST:event_formWindowLostFocus
 
     boolean ctrl;
 

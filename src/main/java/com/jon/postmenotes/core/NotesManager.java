@@ -49,8 +49,7 @@ public class NotesManager {
             LOG.log(Level.INFO, "loading notes {0}", read.size());
             notes.addAll(read);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, e, () -> e.getMessage());
-            System.exit(2);
+            LOG.log(Level.SEVERE, e, () -> e.getMessage());            
         }
     }
 
