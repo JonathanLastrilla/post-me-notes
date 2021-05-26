@@ -43,8 +43,8 @@ public class Main {
     public static final File dataFile = new File(homeDir, dataFileName);
     public static final File schemeFile = new File(homeDir, schemesFileName);
     private NotesManager manager = NotesManager.getInstance();
-    
-    private final static  Properties properties = new Properties();
+
+    private final static Properties properties = new Properties();
 
     Note dummy;
 
@@ -53,7 +53,7 @@ public class Main {
             if (!homeDir.exists()) {
                 homeDir.mkdirs();
             }
-            
+
             properties.load(Main.class.getClassLoader().getResourceAsStream("project.properties"));
             File versionFile = new File(homeDir, "v.ersion");
             String currentVersion = properties.getProperty("version");
@@ -110,6 +110,7 @@ public class Main {
 
                 popUp.add(newNote());
                 popUp.add(showNotesList());
+                popUp.add(showPreferences());
                 popUp.add(exit());
 
                 TrayIcon icon = new TrayIcon(
@@ -144,6 +145,12 @@ public class Main {
         MenuItem notesList = createItem("List");
         notesList.addActionListener(showList());
         return notesList;
+    }
+
+    private MenuItem showPreferences() {
+        MenuItem pref = createItem("Preferences");
+        pref.addActionListener(showPref());
+        return pref;
     }
 
     private MenuItem exit() {
@@ -185,6 +192,17 @@ public class Main {
                 });
     }
 
+    private ActionListener showPref() {
+        return a -> {
+            final JFrame prefUI = new PreferenceUI();
+            prefUI.pack();
+            prefUI.setLocationRelativeTo(null);
+            EventQueue.invokeLater(() -> {
+                prefUI.setVisible(true);
+            });
+        };
+    }
+
     public Thread shutdownHook() {
         return new Thread(() -> {
             NotesManager.serialize();
@@ -208,4 +226,5 @@ public class Main {
         app.restoreSavedNotes();
         Runtime.getRuntime().addShutdownHook(app.shutdownHook());
     }
+
 }

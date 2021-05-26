@@ -8,12 +8,18 @@ package com.jon.postmenotes;
 import com.jon.postmenotes.core.ColorScheme;
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.Preference;
+import com.jon.postmenotes.core.PreferenceEvent;
+import com.jon.postmenotes.core.PreferenceListener;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -35,7 +41,7 @@ import javax.swing.plaf.ColorUIResource;
  */
 public class PostMeNoteDialog extends javax.swing.JDialog {
 
-    private final Note model;
+    
 
     /**
      * Creates new form PostMeNoteDialog
@@ -47,6 +53,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         initComponents();
         this.model = model;
         initComponents2();
+        Preference.getInstance().addListener(prefListener);
     }
 
     /**
@@ -230,7 +237,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }
         colorListJCB.setRenderer(schemesRenderer());
         setTitle(model.getTitle());
-
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -314,11 +320,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
-        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);        
     }//GEN-LAST:event_formWindowLostFocus
 
     boolean ctrl;
@@ -413,11 +418,36 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
         }).start();
+    }    
+    
+    private PreferenceListener listener(){
+        return new PreferenceListener() {
+            @Override
+            public void apply(PreferenceEvent property, Object value) {
+                switch(property){
+                    case FONT:{
+                        Font f = (Font) value;                        
+                        jEditorPane1.setFont(new Font(f.getName(), 0, 16));
+                        break;
+                    }
+                    default :{
+                        System.out.println(property);
+                    }
+                }
+            }
+
+            @Override
+            public List<PreferenceEvent> subscribedEvents() {
+                return Arrays.asList(PreferenceEvent.FONT);
+            }
+        };
     }
 
     boolean isUpdating = false;
     int posX;
     int posY;
+    private final Note model;
+    private final PreferenceListener prefListener = listener();
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
