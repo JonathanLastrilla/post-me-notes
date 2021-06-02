@@ -53,6 +53,7 @@ public final class ColorScheme implements Serializable {
                 Logger.getLogger(ColorScheme.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        SCHEME1_TEST.setLabel("default");
     }
 
     private ColorScheme(Color bg, Color fg) {
