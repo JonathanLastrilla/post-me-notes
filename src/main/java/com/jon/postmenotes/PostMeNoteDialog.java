@@ -222,7 +222,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void initComponents2() {
-        setIconImage(Main.createImageIcon(Main.iconName, "").getImage());
+        setIconImage(Main.createImageIcon(Main.ICON_NAME, "").getImage());
         if (model.getScreenLocation() != null) {
             setLocation(model.getScreenLocation());
         }
@@ -265,9 +265,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_jEditorPane1KeyReleased
 
     private void newNoteJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newNoteJBActionPerformed
-        final JDialog another = NotesManager.getInstance().newNoteInstance();
         EventQueue.invokeLater(() -> {
-            another.setVisible(true);
+            NotesManager.getInstance()
+                    .newNoteInstance()
+                    .setVisible(true);
         });
     }//GEN-LAST:event_newNoteJBActionPerformed
 

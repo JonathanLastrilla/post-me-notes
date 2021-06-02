@@ -23,7 +23,7 @@ public class NotesList extends javax.swing.JFrame {
     public NotesList() {
         initComponents();
         setTitle(System.getProperty("user.name") + " - Notest List");
-        setIconImage(Main.createImageIcon(Main.iconName, "").getImage());
+        setIconImage(Main.createImageIcon(Main.ICON_NAME, "").getImage());
         DefaultComboBoxModel notesCBModel = new DefaultComboBoxModel(
                 manager.getSavedNotes()
                         .stream()

@@ -37,9 +37,9 @@ public final class ColorScheme implements Serializable {
     }
 
     static {
-        if (Main.schemeFile.exists()) {
+        if (Main.COLOR_SCHEMES_FILE.exists()) {
             try {
-                Scanner s = new Scanner(Main.schemeFile);
+                Scanner s = new Scanner(Main.COLOR_SCHEMES_FILE);
                 while (s.hasNext()) {
                     
                     String[] line = s.nextLine().split(",");

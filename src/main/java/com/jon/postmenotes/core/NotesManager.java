@@ -44,7 +44,7 @@ public class NotesManager {
     }
 
     public static void deSerialize() {
-        try ( ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Main.dataFile))) {
+        try ( ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Main.DATA_FILE))) {
             List<Note> read = (List<Note>) ois.readObject();
             LOG.log(Level.INFO, "loading notes {0}", read.size());
             notes.addAll(read);
@@ -54,8 +54,8 @@ public class NotesManager {
     }
 
     public static void serialize() {
-        try ( ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Main.dataFile))) {
-            LOG.log(Level.INFO, "saving to {0} {1}", new Object[]{Main.dataFile.getAbsolutePath(), notes.size()});
+        try ( ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Main.DATA_FILE))) {
+            LOG.log(Level.INFO, "saving to {0} {1}", new Object[]{Main.DATA_FILE.getAbsolutePath(), notes.size()});
             oos.writeObject(notes);
         } catch (IOException e) {
             LOG.log(Level.SEVERE, e, () -> e.getMessage());

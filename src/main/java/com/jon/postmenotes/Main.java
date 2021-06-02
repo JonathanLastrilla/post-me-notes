@@ -34,17 +34,17 @@ import javax.swing.JOptionPane;
 public class Main {
 
     static final Logger LOG = Logger.getLogger(Main.class.getName());
-    public static final String homeName = ".postMeNotes";
-    private static final String dataFileName = "d.data";
-    private static final String schemesFileName = "s.chemes";
-    private static final String versionDirectory = "v.ersion";
-    private static final String prefsFileName = "p.refs";
-    public static final String iconName = "/images/icon.jpg";
-    public static final File homeDir = new File(System.getProperty("user.home"), homeName);
-    public static final File dataFile = new File(homeDir, dataFileName);
-    public static final File schemeFile = new File(homeDir, schemesFileName);
-    public static final File prefsFile = new File(homeDir, prefsFileName);
-    private NotesManager manager = NotesManager.getInstance();
+    public static final String APP_DIRNAME = ".postMeNotes";
+    private static final String DATA_FILENAME = "d.data";
+    private static final String SCHEMES_FILENAME = "s.chemes";
+    private static final String VERSION_DIRECTORY = "v.ersion";
+    private static final String PREFS_FILENAME = "p.refs";
+    public static final String ICON_NAME = "/images/icon.jpg";
+    public static final File HOME_DIR = new File(System.getProperty("user.home"), APP_DIRNAME);
+    public static final File DATA_FILE = new File(HOME_DIR, DATA_FILENAME);
+    public static final File COLOR_SCHEMES_FILE = new File(HOME_DIR, SCHEMES_FILENAME);
+    public static final File PREFS_FILE = new File(HOME_DIR, PREFS_FILENAME);
+    private final NotesManager MANAGER = NotesManager.getInstance();
 
     private final static Properties properties = new Properties();
 
@@ -52,12 +52,12 @@ public class Main {
 
     static {
         try {
-            if (!homeDir.exists()) {
-                homeDir.mkdirs();
+            if (!HOME_DIR.exists()) {
+                HOME_DIR.mkdirs();
             }
 
             properties.load(Main.class.getClassLoader().getResourceAsStream("project.properties"));
-            File versionFile = new File(homeDir, "v.ersion");
+            File versionFile = new File(HOME_DIR, "v.ersion");
             String currentVersion = properties.getProperty("version");
             if (versionFile.exists()) {
                 //already installed
@@ -115,7 +115,7 @@ public class Main {
                 popUp.add(exit());
 
                 TrayIcon icon = new TrayIcon(
-                        createImageIcon(iconName, "")
+                        createImageIcon(ICON_NAME, "")
                                 .getImage()
                                 .getScaledInstance(tray.getTrayIconSize().height,
                                         tray.getTrayIconSize().height,
@@ -162,9 +162,9 @@ public class Main {
 
     private ActionListener createNote() {
         return a -> {
-            JDialog dialog = manager.newNoteInstance();
             java.awt.EventQueue.invokeLater(() -> {
-                dialog.setVisible(true);
+                MANAGER.newNoteInstance()
+                        .setVisible(true);
             });
         };
     }
@@ -181,7 +181,7 @@ public class Main {
     }
 
     public void restoreSavedNotes() {
-        manager.getSavedNotes()
+        MANAGER.getSavedNotes()
                 .stream()
                 .filter(n -> !n.isHidden())
                 .map(PostMeNoteDialog::new)
@@ -207,7 +207,7 @@ public class Main {
     public Thread shutdownHook() {
         return new Thread(() -> {
             NotesManager.serialize();
-            LOG.info("saving data.." + manager.getSavedNotes().size());
+            LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
         });
     }
 
