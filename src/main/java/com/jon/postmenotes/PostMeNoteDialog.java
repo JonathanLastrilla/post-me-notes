@@ -18,12 +18,15 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
@@ -65,6 +68,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        editorContext = new javax.swing.JPopupMenu();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane(){
@@ -114,6 +118,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
         jEditorPane1.setBorder(null);
         jEditorPane1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
+        jEditorPane1.setComponentPopupMenu(editorContext);
         jEditorPane1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jEditorPane1MouseReleased(evt);
@@ -357,14 +362,13 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     model.setText(jEditorPane1.getText());
                     isUpdating = false;
                     new Thread(() -> {
+                        generateContext();
                         statusJL.setText("saved.");
                         try {
                             Thread.sleep(2000);
                             statusJL.setText("");
                             setTitle(model.getTitle());
-
                         } catch (InterruptedException ex) {
-
                         }
                     }).start();
                 } catch (Exception e) {
@@ -442,6 +446,18 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         };
     }
+    
+    private void generateContext(){
+        
+        String regex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        System.out.println(regex);
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(model.getText());
+        while (m.find()) {            
+            System.out.println(m.group());        
+        }
+        
+    }
 
     boolean isUpdating = false;
     int posX;
@@ -451,6 +467,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
+    private javax.swing.JPopupMenu editorContext;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;

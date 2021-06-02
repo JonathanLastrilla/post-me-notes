@@ -38,10 +38,12 @@ public class Main {
     private static final String dataFileName = "d.data";
     private static final String schemesFileName = "s.chemes";
     private static final String versionDirectory = "v.ersion";
+    private static final String prefsFileName = "p.refs";
     public static final String iconName = "/images/icon.jpg";
     public static final File homeDir = new File(System.getProperty("user.home"), homeName);
     public static final File dataFile = new File(homeDir, dataFileName);
     public static final File schemeFile = new File(homeDir, schemesFileName);
+    public static final File prefsFile = new File(homeDir, prefsFileName);
     private NotesManager manager = NotesManager.getInstance();
 
     private final static Properties properties = new Properties();
@@ -69,7 +71,6 @@ public class Main {
                         LOG.info("Detected version: " + currentVersion);
                     }
                 }
-
             } else {
                 try ( FileWriter w = new FileWriter(versionFile)) {
                     w.write(currentVersion);
