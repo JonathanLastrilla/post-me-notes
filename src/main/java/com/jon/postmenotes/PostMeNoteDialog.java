@@ -228,9 +228,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             updateColr(model.getColorScheme());
             colorList.setSelectedItem(model.getColorScheme());
         }
-        colorListJCB.setRenderer(schemesRenderer());
-        setTitle(model.getTitle());
-
+        colorListJCB.setRenderer(schemesRenderer());       
+        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -295,6 +294,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         if (selected.isPresent()) {
             updateColr(selected.get());
         }
+        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
     }//GEN-LAST:event_colorListJCBActionPerformed
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
@@ -356,8 +356,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                         try {
                             Thread.sleep(2000);
                             statusJL.setText("");
-                            setTitle(model.getTitle());
-
+                            setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
                         } catch (InterruptedException ex) {
 
                         }
@@ -418,6 +417,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     boolean isUpdating = false;
     int posX;
     int posY;
+    private String TITLE_TEMPLATE = "%s - %s";
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
