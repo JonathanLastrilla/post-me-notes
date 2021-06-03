@@ -40,6 +40,7 @@ public class DefaultNoteInstance implements Note {
         issueRecordUrl = "not set";
         codeReviewUrl = "not set";
         hidden = false;
+        scheme = ColorScheme.SCHEME1_TEST;
     }
 
     public DefaultNoteInstance(String data) {
@@ -48,7 +49,7 @@ public class DefaultNoteInstance implements Note {
 
     public DefaultNoteInstance() {
         this("");
-
+        
     }
 
     @Override
