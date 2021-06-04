@@ -14,6 +14,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
@@ -68,6 +70,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         statusJL = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         newNoteJB = new javax.swing.JButton();
+        deleteJB = new javax.swing.JButton();
         lockedJCB = new javax.swing.JCheckBox();
         colorListJCB = new javax.swing.JComboBox<>();
 
@@ -96,6 +99,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
             }
@@ -145,6 +151,17 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         jToolBar1.add(newNoteJB);
+
+        deleteJB.setText("delete");
+        deleteJB.setFocusable(false);
+        deleteJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        deleteJB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        deleteJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteJBActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(deleteJB);
 
         lockedJCB.setToolTipText("edit");
         lockedJCB.setFocusable(false);
@@ -264,6 +281,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         boolean b = model.toggleLock();
         jEditorPane1.setEditable(b);
         publish(b ? "write enabled" : "read only");
+        deleteJB.setEnabled(!b);
     }//GEN-LAST:event_lockedJCBActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
@@ -314,12 +332,29 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        
+
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
         jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
     }//GEN-LAST:event_formWindowLostFocus
+
+    private void deleteJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteJBActionPerformed
+        int sel = JOptionPane.showConfirmDialog(this, "This will delete your note permanently", "Delete Note", JOptionPane.YES_NO_OPTION);
+        flaggedForDeletion = sel == JOptionPane.YES_OPTION;
+        if (flaggedForDeletion) {
+            this.dispose();
+        }
+    }//GEN-LAST:event_deleteJBActionPerformed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        if (flaggedForDeletion) {
+            boolean removed = NotesManager.getInstance().getSavedNotes().remove(model);
+            if (removed) {
+                JOptionPane.showMessageDialog(null, String.format("Note '%s' deleted.", model.getTitle()));
+            }
+        }
+    }//GEN-LAST:event_formWindowClosed
 
     boolean ctrl;
 
@@ -376,15 +411,24 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         Consumer<JComponent> fgSetter = f -> f.setForeground(scheme.getFg());
         Consumer<JComponent> bgSetter = f -> f.setBackground(scheme.getBg());
 
-        bgSetter.accept(jPanel1);
-        bgSetter.accept(jEditorPane1);
-        bgSetter.accept(jScrollPane2);
-        bgSetter.accept(colorListJCB);
+        Arrays.asList(
+                jPanel1,
+                jEditorPane1,
+                jScrollPane2,
+                colorListJCB,
+                deleteJB)
+                .stream()
+                .forEach(fgSetter);
 
-        fgSetter.accept(jEditorPane1);
-        fgSetter.accept(statusJL);
-        fgSetter.accept(newNoteJB);
-        fgSetter.accept(colorListJCB);
+        Arrays.asList(
+                jPanel1,
+                jEditorPane1,
+                jScrollPane2,
+                colorListJCB,
+                deleteJB)
+                .stream()
+                .forEach(bgSetter);
+
         UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
         model.setColorScheme(scheme);
 
@@ -418,9 +462,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     boolean isUpdating = false;
     int posX;
     int posY;
+    private boolean flaggedForDeletion = false;
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
+    private javax.swing.JButton deleteJB;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
