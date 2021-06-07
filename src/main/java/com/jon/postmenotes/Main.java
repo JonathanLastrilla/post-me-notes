@@ -264,7 +264,7 @@ public class Main {
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection selection = new StringSelection(data);
             cb.setContents(selection, null);
-            JOptionPane.showMessageDialog(null, data, "Report Copied in Clipboard", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, data, "Report Copied in Clipboard", JOptionPane.INFORMATION_MESSAGE);
 
         };
     }
