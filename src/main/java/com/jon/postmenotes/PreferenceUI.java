@@ -58,6 +58,7 @@ public class PreferenceUI extends javax.swing.JFrame {
      */
     public PreferenceUI() {
         initComponents();
+        setIconImage(Main.createImageIcon(Main.ICON_NAME, "").getImage());
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
         DefaultComboBoxModel model = new DefaultComboBoxModel(Stream.of(ge.getAllFonts())
