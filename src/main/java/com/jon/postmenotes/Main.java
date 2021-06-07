@@ -14,17 +14,25 @@ import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
+import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -112,6 +120,7 @@ public class Main {
 
                 popUp.add(newNote());
                 popUp.add(showNotesList());
+                popUp.add(generateReport());
                 popUp.add(showPreferences());
                 popUp.add(exit());
 
@@ -153,6 +162,12 @@ public class Main {
         MenuItem pref = createItem("Preferences");
         pref.addActionListener(showPref());
         return pref;
+    }
+
+    private MenuItem generateReport() {
+        MenuItem report = createItem("Create Report");
+        report.addActionListener(genReport());
+        return report;
     }
 
     private MenuItem exit() {
@@ -205,12 +220,61 @@ public class Main {
         };
     }
 
+    private ActionListener genReport() {
+        return a -> {
+            final StringBuilder b = new StringBuilder();
+            Calendar c = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd");
+            b.append(sdf.format(c.getTime())).append("\n");
+
+            final Pattern pattern = Pattern.compile("^-+");
+
+            Consumer<Note> gen = note -> {
+                Stack<String> stack = new Stack<>();
+                for (String string : note.getText().split("\n")) {
+                    stack.push(string);
+                }
+                b.append("-------------------")
+                        .append("\n")
+                        .append(note.getTitle())
+                        .append("\n");
+                final StringBuilder sub = new StringBuilder();
+                while (!stack.isEmpty()) {
+                    String top = stack.pop();
+                    boolean terminate = pattern.matcher(top).find();
+                    if (!terminate) {
+                        sub.insert(0, top + "\n");
+                    } else {
+                        break;
+                    }
+                }
+                b.append(" - " + sub.toString())
+                        .append("\n");
+
+            };
+
+            MANAGER.getSavedNotes()
+                    .stream()
+                    .filter(n -> {
+                        return n.getColorScheme().getLabel().equals("DEV_WIP") || n.getColorScheme().getLabel().equals("IN_REVIEW");
+                    })
+                    .forEach(gen);
+//            System.out.println(b.toString());
+            String data = b.toString();
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection selection = new StringSelection(data);
+            cb.setContents(selection, null);
+            JOptionPane.showMessageDialog(null, data, "Report Copied in Clipboard", JOptionPane.OK_OPTION);
+
+        };
+    }
+
     public Thread shutdownHook() {
         return new Thread(() -> {
             Preference.getInstance().serialize();
             LOG.log(Level.INFO, "saving preferences..");
             NotesManager.serialize();
-            LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());            
+            LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
         });
     }
 
