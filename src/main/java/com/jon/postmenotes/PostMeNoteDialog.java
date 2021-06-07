@@ -18,11 +18,10 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
-import java.util.logging.Logger;
-import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,10 +30,10 @@ import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -58,7 +57,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         initComponents();
         this.model = model;
         initComponents2();
-        Preference.getInstance().addListener(prefListener);
+        preference.addListener(prefListener);
     }
 
     /**
@@ -115,6 +114,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
+            }
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
             }
         });
 
@@ -368,6 +370,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_formWindowClosed
 
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        SwingUtilities.invokeLater(() -> preference.requestUpdate(prefListener));
+    }//GEN-LAST:event_formWindowOpened
+
     boolean ctrl;
 
     private DocumentListener editorListener() {
@@ -427,7 +433,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 jEditorPane1,
                 jScrollPane2,
                 colorListJCB,
-                deleteJB)
+                deleteJB,
+                statusJL
+                )
                 .stream()
                 .forEach(fgSetter);
 
@@ -436,7 +444,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 jEditorPane1,
                 jScrollPane2,
                 colorListJCB,
-                deleteJB)
+                deleteJB,
+                statusJL
+                )
                 .stream()
                 .forEach(bgSetter);
 
@@ -480,6 +490,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                         jEditorPane1.setFont(new Font(f.getName(), 0, 16));
                         break;
                     }
+                    case FONT_SIZE:{                        
+                        Font f = jEditorPane1.getFont();
+                        jEditorPane1.setFont(new Font(f.getName(), 0, (Integer)value));
+                        break;
+                    }
                     default :{
                         System.out.println(property);
                     }
@@ -488,7 +503,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
             @Override
             public List<PreferenceEvent> subscribedEvents() {
-                return Arrays.asList(PreferenceEvent.FONT);
+                return Arrays.asList(PreferenceEvent.FONT, PreferenceEvent.FONT_SIZE);
             }
         };
     }
@@ -513,12 +528,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private String TITLE_TEMPLATE = "%s - %s";
     private boolean flaggedForDeletion = false;
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
+    private Preference preference = Preference.getInstance();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> colorListJCB;
-
-    private javax.swing.JPopupMenu editorContext;
-
     private javax.swing.JButton deleteJB;
+    private javax.swing.JPopupMenu editorContext;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;

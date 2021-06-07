@@ -7,6 +7,7 @@ package com.jon.postmenotes;
 
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.Preference;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -206,8 +207,10 @@ public class Main {
 
     public Thread shutdownHook() {
         return new Thread(() -> {
+            Preference.getInstance().serialize();
+            LOG.log(Level.INFO, "saving preferences..");
             NotesManager.serialize();
-            LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
+            LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());            
         });
     }
 

@@ -35,6 +35,22 @@ public class PreferenceUI extends javax.swing.JFrame {
             return w.getName();
         }
 
+        @Override
+        public boolean equals(Object obj) {            
+            if (obj instanceof ListItem) {
+                return ((ListItem) obj).w.getFontName().equals(w.getFontName());
+            } else {
+                return super.equals(obj);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return w.hashCode();
+        }
+        
+        
+
     }
 
     /**
@@ -43,13 +59,22 @@ public class PreferenceUI extends javax.swing.JFrame {
     public PreferenceUI() {
         initComponents();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        
+
         DefaultComboBoxModel model = new DefaultComboBoxModel(Stream.of(ge.getAllFonts())
                 .map(ListItem::new)
                 .toArray());
-        fontListJCB.setModel(model);
-        
-        
+
+        int fIdx = -1;
+        for (int i = 0; i < model.getSize(); i++) {
+            ListItem li = (ListItem) model.getElementAt(i);
+            if(li.getFont().equals(((Font)pref.get(PreferenceEvent.FONT)))){                
+                model.setSelectedItem(li);
+                break;
+            }
+            
+        }
+        fontListJCB.setModel(model);        
+        fontSizeJFTF.setText("" + pref.get(PreferenceEvent.FONT_SIZE));
     }
 
     /**
@@ -80,7 +105,12 @@ public class PreferenceUI extends javax.swing.JFrame {
 
         jLabel2.setText("Size");
 
-        fontSizeJFTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        fontSizeJFTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        fontSizeJFTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                fontSizeJFTFPropertyChange(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -128,9 +158,19 @@ public class PreferenceUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void fontListJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontListJCBActionPerformed
-        publisher.publish(PreferenceEvent.FONT, ((ListItem)fontListJCB.getModel().getSelectedItem()).getFont());
+        publisher.publish(PreferenceEvent.FONT, ((ListItem) fontListJCB.getModel().getSelectedItem()).getFont());
     }//GEN-LAST:event_fontListJCBActionPerformed
-  
+
+    private void fontSizeJFTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_fontSizeJFTFPropertyChange
+        if ("value".equals(evt.getPropertyName())) {
+            try {
+                publisher.publish(PreferenceEvent.FONT_SIZE, Integer.parseInt(fontSizeJFTF.getText()));
+            } catch (NumberFormatException e) {
+
+            }
+        }
+    }//GEN-LAST:event_fontSizeJFTFPropertyChange
+
     Preference pref = Preference.getInstance();
     Preference.Publisher publisher = new Preference.Publisher(pref);
 
