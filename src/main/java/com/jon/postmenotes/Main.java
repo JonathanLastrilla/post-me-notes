@@ -248,7 +248,7 @@ public class Main {
                         break;
                     }
                 }
-                b.append(" - " + sub.toString())
+                b.append(" • ").append(sub.toString())
                         .append("\n");
 
             };
