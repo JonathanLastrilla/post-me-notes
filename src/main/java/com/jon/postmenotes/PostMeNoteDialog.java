@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.text.BadLocationException;
 
 /**
  *
@@ -82,6 +83,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         newNoteJB = new javax.swing.JButton();
         deleteJB = new javax.swing.JButton();
         lockedJCB = new javax.swing.JCheckBox();
+        addSeparatorJB = new javax.swing.JButton();
         colorListJCB = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -187,6 +189,17 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         jToolBar1.add(lockedJCB);
+
+        addSeparatorJB.setText("(---)");
+        addSeparatorJB.setFocusable(false);
+        addSeparatorJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addSeparatorJB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addSeparatorJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSeparatorJBActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(addSeparatorJB);
 
         colorListJCB.setToolTipText("sticky color");
         colorListJCB.setOpaque(false);
@@ -373,6 +386,16 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         SwingUtilities.invokeLater(() -> preference.requestUpdate(prefListener));
     }//GEN-LAST:event_formWindowOpened
 
+    private void addSeparatorJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSeparatorJBActionPerformed
+        try {            
+            jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
+                    "\n-------------------\n", null);
+            jEditorPane1.setCaretPosition(jEditorPane1.getDocument().getLength());
+        } catch (BadLocationException ex) {
+            Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_addSeparatorJBActionPerformed
+
     boolean ctrl;
 
     private DocumentListener editorListener() {
@@ -433,7 +456,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 jScrollPane2,
                 colorListJCB,
                 deleteJB,
-                statusJL
+                statusJL,
+                addSeparatorJB
                 )
                 .stream()
                 .forEach(fgSetter);
@@ -444,7 +468,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 jScrollPane2,
                 colorListJCB,
                 deleteJB,
-                statusJL
+                statusJL,
+                addSeparatorJB
                 )
                 .stream()
                 .forEach(bgSetter);
@@ -529,6 +554,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     private Preference preference = Preference.getInstance();
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addSeparatorJB;
     private javax.swing.JComboBox<String> colorListJCB;
     private javax.swing.JButton deleteJB;
     private javax.swing.JPopupMenu editorContext;

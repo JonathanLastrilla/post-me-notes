@@ -165,7 +165,7 @@ public class Main {
     }
 
     private MenuItem generateReport() {
-        MenuItem report = createItem("Create Report");
+        MenuItem report = createItem("Summarize");
         report.addActionListener(genReport());
         return report;
     }
