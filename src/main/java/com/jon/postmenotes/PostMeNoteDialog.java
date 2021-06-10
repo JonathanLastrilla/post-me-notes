@@ -82,7 +82,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         newNoteJB = new javax.swing.JButton();
         deleteJB = new javax.swing.JButton();
         lockedJCB = new javax.swing.JCheckBox();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
         addSeparatorJB = new javax.swing.JButton();
+        tsJCB = new javax.swing.JCheckBox();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
         colorListJCB = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -124,7 +127,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jScrollPane2.setBorder(null);
         jScrollPane2.setOpaque(false);
 
-        jEditorPane1.setBorder(null);
         jEditorPane1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         jEditorPane1.setComponentPopupMenu(editorContext);
         jEditorPane1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -148,7 +150,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         statusJL.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         statusJL.setText(" ");
 
-        jToolBar1.setBorder(null);
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setOpaque(false);
@@ -177,7 +178,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(deleteJB);
 
-        lockedJCB.setToolTipText("edit");
+        lockedJCB.setToolTipText("edit, unchecking enables 'copy on select'");
         lockedJCB.setFocusable(false);
         lockedJCB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         lockedJCB.setOpaque(false);
@@ -188,9 +189,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         jToolBar1.add(lockedJCB);
+        jToolBar1.add(jSeparator1);
 
         addSeparatorJB.setText("(---)");
-        addSeparatorJB.setToolTipText("add separator brah");
+        addSeparatorJB.setToolTipText("add separator");
         addSeparatorJB.setFocusable(false);
         addSeparatorJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         addSeparatorJB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -200,6 +202,19 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         jToolBar1.add(addSeparatorJB);
+
+        tsJCB.setText("timestamp");
+        tsJCB.setToolTipText("add timestamp when inserting separator");
+        tsJCB.setFocusable(false);
+        tsJCB.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        tsJCB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tsJCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tsJCBActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(tsJCB);
+        jToolBar1.add(jSeparator2);
 
         colorListJCB.setToolTipText("sticky color");
         colorListJCB.setOpaque(false);
@@ -217,20 +232,20 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
+                    .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(colorListJCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(colorListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -396,6 +411,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_addSeparatorJBActionPerformed
 
+    private void tsJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tsJCBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tsJCBActionPerformed
+
     boolean ctrl;
 
     private DocumentListener editorListener() {
@@ -457,7 +476,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 colorListJCB,
                 deleteJB,
                 statusJL,
-                addSeparatorJB
+                addSeparatorJB,
+                tsJCB
                 )
                 .stream()
                 .forEach(fgSetter);
@@ -469,7 +489,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 colorListJCB,
                 deleteJB,
                 statusJL,
-                addSeparatorJB
+                addSeparatorJB,
+                tsJCB
                 )
                 .stream()
                 .forEach(bgSetter);
@@ -561,9 +582,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JCheckBox lockedJCB;
     private javax.swing.JButton newNoteJB;
     private javax.swing.JLabel statusJL;
+    private javax.swing.JCheckBox tsJCB;
     // End of variables declaration//GEN-END:variables
 }
