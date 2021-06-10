@@ -12,6 +12,7 @@ import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.MenuItem;
+import java.awt.MenuShortcut;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
@@ -19,6 +20,7 @@ import java.awt.TrayIcon;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -119,9 +121,11 @@ public class Main {
                 PopupMenu popUp = new PopupMenu("test");
 
                 popUp.add(newNote());
-                popUp.add(showNotesList());
                 popUp.add(generateReport());
+                popUp.addSeparator();
+                popUp.add(showNotesList());
                 popUp.add(showPreferences());
+                popUp.addSeparator();
                 popUp.add(exit());
 
                 TrayIcon icon = new TrayIcon(
@@ -144,11 +148,11 @@ public class Main {
 
     private MenuItem createItem(String name) {
         return new MenuItem(name);
-    }
+    }        
 
     private MenuItem newNote() {
         MenuItem newNote = createItem("New");
-        newNote.addActionListener(createNote());
+        newNote.addActionListener(createNote());        
         return newNote;
     }
 

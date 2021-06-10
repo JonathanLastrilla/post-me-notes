@@ -21,7 +21,6 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -191,6 +190,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.add(lockedJCB);
 
         addSeparatorJB.setText("(---)");
+        addSeparatorJB.setToolTipText("add separator brah");
         addSeparatorJB.setFocusable(false);
         addSeparatorJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         addSeparatorJB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -272,7 +272,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             colorList.setSelectedItem(model.getColorScheme());
         }
         colorListJCB.setRenderer(schemesRenderer());       
-        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
+        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));        
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
