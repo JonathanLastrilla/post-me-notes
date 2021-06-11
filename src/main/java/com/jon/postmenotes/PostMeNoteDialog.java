@@ -18,8 +18,10 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -81,8 +83,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1 = new javax.swing.JToolBar();
         newNoteJB = new javax.swing.JButton();
         deleteJB = new javax.swing.JButton();
-        lockedJCB = new javax.swing.JCheckBox();
         jSeparator1 = new javax.swing.JToolBar.Separator();
+        lockedJCB = new javax.swing.JCheckBox();
+        jSeparator3 = new javax.swing.JToolBar.Separator();
         addSeparatorJB = new javax.swing.JButton();
         tsJCB = new javax.swing.JCheckBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
@@ -167,7 +170,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(newNoteJB);
 
-        deleteJB.setText("delete");
+        deleteJB.setText(" - ");
+        deleteJB.setToolTipText("delete permanently");
         deleteJB.setFocusable(false);
         deleteJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         deleteJB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -177,19 +181,21 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         });
         jToolBar1.add(deleteJB);
+        jToolBar1.add(jSeparator1);
 
+        lockedJCB.setText("edit");
         lockedJCB.setToolTipText("edit, unchecking enables 'copy on select'");
         lockedJCB.setFocusable(false);
-        lockedJCB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lockedJCB.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lockedJCB.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         lockedJCB.setOpaque(false);
-        lockedJCB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         lockedJCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lockedJCBActionPerformed(evt);
             }
         });
         jToolBar1.add(lockedJCB);
-        jToolBar1.add(jSeparator1);
+        jToolBar1.add(jSeparator3);
 
         addSeparatorJB.setText("(---)");
         addSeparatorJB.setToolTipText("add separator");
@@ -287,7 +293,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             colorList.setSelectedItem(model.getColorScheme());
         }
         colorListJCB.setRenderer(schemesRenderer());       
-        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));        
+        setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
+        addSeparatorJB.setEnabled(model.isLocked());
+        tsJCB.setEnabled(model.isLocked());
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -323,6 +331,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jEditorPane1.setEditable(b);
         publish(b ? "write enabled" : "read only");
         deleteJB.setEnabled(!b);
+        addSeparatorJB.setEnabled(b);
+        tsJCB.setEnabled(b);
     }//GEN-LAST:event_lockedJCBActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
@@ -405,6 +415,10 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         try {            
             jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
                     "\n-------------------\n", null);
+            if(tsJCB.isSelected()){
+                jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
+                    sdf.format(new Date())+"\n", null);
+            }
             jEditorPane1.setCaretPosition(jEditorPane1.getDocument().getLength());
         } catch (BadLocationException ex) {
             Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
@@ -470,6 +484,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         Consumer<JComponent> bgSetter = f -> f.setBackground(scheme.getBg());
 
         Arrays.asList(
+                newNoteJB,
                 jPanel1,
                 jEditorPane1,
                 jScrollPane2,
@@ -477,12 +492,14 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 deleteJB,
                 statusJL,
                 addSeparatorJB,
-                tsJCB
+                tsJCB,
+                lockedJCB
                 )
                 .stream()
                 .forEach(fgSetter);
 
         Arrays.asList(
+                newNoteJB,
                 jPanel1,
                 jEditorPane1,
                 jScrollPane2,
@@ -490,14 +507,13 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 deleteJB,
                 statusJL,
                 addSeparatorJB,
-                tsJCB
+                tsJCB,
+                lockedJCB
                 )
                 .stream()
                 .forEach(bgSetter);
-
         UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
         model.setColorScheme(scheme);
-
     }
 
     private DefaultListCellRenderer schemesRenderer() {
@@ -554,26 +570,25 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }
     
     private void generateContext(){
-        
-        String regex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        System.out.println(regex);
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(model.getText());
-        while (m.find()) {            
-            System.out.println(m.group());        
-        }
-        
+//        String regex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+//        System.out.println(regex);
+//        Pattern p = Pattern.compile(regex);
+//        Matcher m = p.matcher(model.getText());
+//        while (m.find()) {            
+//            System.out.println(m.group());        
+//        }        
     }
 
     boolean isUpdating = false;
-    int posX;
-    int posY;
+    private int posX;
+    private int posY;
     private final Note model;
     private final PreferenceListener prefListener = listener();
     private String TITLE_TEMPLATE = "%s - %s";
     private boolean flaggedForDeletion = false;
     private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
     private Preference preference = Preference.getInstance();
+    private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addSeparatorJB;
     private javax.swing.JComboBox<String> colorListJCB;
@@ -584,6 +599,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
+    private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JCheckBox lockedJCB;
     private javax.swing.JButton newNoteJB;
