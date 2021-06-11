@@ -247,12 +247,14 @@ public class Main {
                     String top = stack.pop();
                     boolean terminate = pattern.matcher(top).find();
                     if (!terminate) {
-                        sub.insert(0, top + "\n");
+                        sub.insert(0, "• "+top + "\n");
                     } else {
                         break;
                     }
                 }
-                b.append(" • ").append(sub.toString())
+                b
+//                        .append(" • ")
+                        .append(sub.toString())
                         .append("\n");
 
             };
