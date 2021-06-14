@@ -17,6 +17,9 @@ public abstract class NoteExporter {
     }
     
     public abstract void exportAllNotes(NotesManager manager);
+    
+    public void exportAllNotes(NotesManager manager, boolean overwrite){
+    }
 
     public String getExporterName() {
         return exporterName;

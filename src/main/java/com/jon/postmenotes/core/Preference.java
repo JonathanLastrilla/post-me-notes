@@ -65,6 +65,10 @@ public class Preference {
                 .forEach(lis -> lis.apply(id, prefData.get(id)));
     }
 
+    /**
+     * use this to preload broadcast the properties to the registered listeners.
+     * @param l 
+     */
     public void requestUpdate(PreferenceListener l) {        
         prefData.forEach((k, v) -> {
                 l.apply(k, v);

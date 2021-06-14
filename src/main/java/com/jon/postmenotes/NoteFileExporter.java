@@ -23,6 +23,7 @@ public class NoteFileExporter extends NoteExporter {
 
     private final static Logger LOG = Logger.getLogger(NoteFileExporter.class.getName());
     private File dest = new File(Main.HOME_DIR, "export");
+    private boolean ow = false;
 
     public NoteFileExporter() {
         super("File Export");
@@ -38,12 +39,20 @@ public class NoteFileExporter extends NoteExporter {
 
     }
 
+    @Override
+    public void exportAllNotes(NotesManager manager, boolean overwrite) {
+        ow = overwrite;
+        exportAllNotes(manager);
+    }
+    
+    
+
     private void saveNoteToFile(Note note) {
         String name = String.format("%s_%s.txt", note.getColorScheme().getLabel(), note.getTitle().split(" ")[0]);
         File destfile = new File(dest, name);
         if (!destfile.exists()) {
             w(destfile, note);
-        } else if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Overwrite " + name, "File Export", JOptionPane.YES_NO_OPTION)) {
+        } else if (ow || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Overwrite " + name, "File Export", JOptionPane.YES_NO_OPTION)) {
             w(destfile, note);
         }
 

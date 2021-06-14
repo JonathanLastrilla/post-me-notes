@@ -12,14 +12,14 @@ import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import javax.swing.text.Position;
 
 /**
  *
@@ -93,6 +93,39 @@ public class PreferenceUI extends javax.swing.JFrame {
                 .toArray(String[]::new);
         DefaultComboBoxModel<String> labelsModel = new DefaultComboBoxModel<>(labels);
         labelJL.setModel(labelsModel);
+
+        String summaryFilters = (String) pref.get(PreferenceEvent.SUMMARY_FILTER);
+        if (summaryFilters != null) {
+            for (String f : summaryFilters.split(",")) {
+                summaryModel.addElement(f);
+            }
+        }
+
+        summaryModel.addListDataListener(new ListDataListener() {
+
+            Supplier<String> a = () -> {
+                return IntStream.range(0, summaryModel.getSize())
+                        .mapToObj(summaryModel::get)
+                        .collect(Collectors.joining(","));
+            };
+
+            @Override
+            public void intervalAdded(ListDataEvent arg0) {
+                System.out.println("add "+a.get());
+                preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent arg0) {
+                System.out.println("rem "+a.get());
+                preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent arg0) {
+                
+            }
+        });
     }
 
     /**
@@ -112,14 +145,14 @@ public class PreferenceUI extends javax.swing.JFrame {
         exportJB = new javax.swing.JButton();
         exportersJCB = new javax.swing.JComboBox<>();
         statusJL = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         summaryFilterJL = new javax.swing.JList<>();
         summaryFilterJL.setModel(summaryModel);
         jLabel4 = new javax.swing.JLabel();
         labelJL = new javax.swing.JComboBox<>();
         addFilterJB = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        removeFilterJB = new javax.swing.JButton();
+        overwriteAllJCB = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -152,21 +185,27 @@ public class PreferenceUI extends javax.swing.JFrame {
 
         statusJL.setText("jLabel3");
 
-        jLabel3.setText("Include note with label");
-
+        summaryFilterJL.setToolTipText("Labels of notes to be included in report");
         jScrollPane1.setViewportView(summaryFilterJL);
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel4.setText("Summary");
 
-        addFilterJB.setText("<");
+        addFilterJB.setText("add");
         addFilterJB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addFilterJBActionPerformed(evt);
             }
         });
 
-        jButton1.setText(">");
+        removeFilterJB.setText("remove selected");
+        removeFilterJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeFilterJBActionPerformed(evt);
+            }
+        });
+
+        overwriteAllJCB.setText("overwrite all");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -176,6 +215,12 @@ public class PreferenceUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addFilterJB)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(labelJL, 0, 162, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -189,17 +234,11 @@ public class PreferenceUI extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(exportJB)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(overwriteAllJCB))
                             .addComponent(jLabel4)
-                            .addComponent(jLabel3)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButton1)
-                                    .addComponent(addFilterJB))
-                                .addGap(18, 18, 18)
-                                .addComponent(labelJL, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(removeFilterJB))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -216,30 +255,22 @@ public class PreferenceUI extends javax.swing.JFrame {
                     .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(removeFilterJB)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(exportJB)
-                                    .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addComponent(statusJL)
-                                .addGap(10, 10, 10))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(addFilterJB)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton1)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(labelJL, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(labelJL, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addFilterJB)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(exportJB)
+                    .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(overwriteAllJCB))
+                .addGap(18, 18, 18)
+                .addComponent(statusJL)
+                .addGap(10, 10, 10))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -278,7 +309,7 @@ public class PreferenceUI extends javax.swing.JFrame {
             }
         }
         if (selectedExporter != null) {
-            selectedExporter.exportAllNotes(NotesManager.getInstance());
+            selectedExporter.exportAllNotes(NotesManager.getInstance(), overwriteAllJCB.isSelected());
             publish("all notes exported");
         }
     }//GEN-LAST:event_exportJBActionPerformed
@@ -290,6 +321,11 @@ public class PreferenceUI extends javax.swing.JFrame {
             summaryModel.addElement(selected);
         }
     }//GEN-LAST:event_addFilterJBActionPerformed
+
+    private void removeFilterJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeFilterJBActionPerformed
+       int tr = summaryFilterJL.getSelectedIndex();
+       summaryModel.removeElementAt(tr);
+    }//GEN-LAST:event_removeFilterJBActionPerformed
 
     private void publish(String message) {
         new Thread(() -> {
@@ -315,14 +351,14 @@ public class PreferenceUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> exportersJCB;
     private javax.swing.JComboBox<String> fontListJCB;
     private javax.swing.JFormattedTextField fontSizeJFTF;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JComboBox<String> labelJL;
+    private javax.swing.JCheckBox overwriteAllJCB;
+    private javax.swing.JButton removeFilterJB;
     private javax.swing.JLabel statusJL;
     private javax.swing.JList<String> summaryFilterJL;
     // End of variables declaration//GEN-END:variables

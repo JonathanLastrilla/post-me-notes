@@ -11,6 +11,8 @@ import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
+import com.jon.postmenotes.core.labeltasks.LabelTask;
+import com.jon.postmenotes.core.labeltasks.LabelTaskManager;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -26,13 +28,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -296,6 +297,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
         addSeparatorJB.setEnabled(model.isLocked());
         tsJCB.setEnabled(model.isLocked());
+        colorListJCB.addActionListener(LabelTaskManager.getInstance(this));
     }
 
     private void jEditorPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jEditorPane1KeyPressed
@@ -408,7 +410,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        SwingUtilities.invokeLater(() -> preference.requestUpdate(prefListener));
+        SwingUtilities.invokeLater(() -> {           
+            preference.requestUpdate(prefListener);
+            JScrollBar scb = jScrollPane2.getVerticalScrollBar();
+            scb.setValue(scb.getMaximum());
+        });
     }//GEN-LAST:event_formWindowOpened
 
     private void addSeparatorJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSeparatorJBActionPerformed
@@ -459,8 +465,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     Thread.sleep(3000);
                     model.setText(jEditorPane1.getText());
                     isUpdating = false;
-                    new Thread(() -> {
-                        generateContext();
+                    new Thread(() -> {                        
                         statusJL.setText("saved.");
                         try {
                             Thread.sleep(2000);
@@ -557,7 +562,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                         break;
                     }
                     default :{
-                        System.out.println(property);
+                        LOG.log(Level.FINE,property.name());
                     }
                 }
             }
@@ -569,14 +574,11 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         };
     }
     
-    private void generateContext(){
-//        String regex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-//        System.out.println(regex);
-//        Pattern p = Pattern.compile(regex);
-//        Matcher m = p.matcher(model.getText());
-//        while (m.find()) {            
-//            System.out.println(m.group());        
-//        }        
+    @LabelTask(label = "NOTE")
+    public void disableEdit(){
+        if(lockedJCB.isSelected()){
+            lockedJCB.doClick();
+        }
     }
 
     boolean isUpdating = false;
@@ -606,4 +608,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private javax.swing.JLabel statusJL;
     private javax.swing.JCheckBox tsJCB;
     // End of variables declaration//GEN-END:variables
+
+    public Note getModel() {
+        return model;
+    }
 }

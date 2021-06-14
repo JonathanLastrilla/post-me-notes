@@ -27,9 +27,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -57,7 +59,8 @@ public class Main {
     public static final File COLOR_SCHEMES_FILE = new File(HOME_DIR, SCHEMES_FILENAME);
     public static final File PREFS_FILE = new File(HOME_DIR, PREFS_FILENAME);
     private final NotesManager MANAGER = NotesManager.getInstance();
-
+    private Set<String> summaryFilters = new HashSet<>();
+    private PreferenceListener appListener = settingsListener();
     private final static Properties properties = new Properties();
 
     Note dummy;
@@ -112,7 +115,8 @@ public class Main {
     }
 
     public final void initApp() {
-
+        Preference.getInstance().addListener(appListener);
+        Preference.getInstance().requestUpdate(appListener);
     }
 
     public final void initUI() {
@@ -149,11 +153,11 @@ public class Main {
 
     private MenuItem createItem(String name) {
         return new MenuItem(name);
-    }        
+    }
 
     private MenuItem newNote() {
         MenuItem newNote = createItem("New");
-        newNote.addActionListener(createNote());        
+        newNote.addActionListener(createNote());
         return newNote;
     }
 
@@ -248,13 +252,12 @@ public class Main {
                     String top = stack.pop();
                     boolean terminate = pattern.matcher(top).find();
                     if (!terminate) {
-                        sub.insert(0, "• "+top + "\n");
+                        sub.insert(0, "• " + top + "\n");
                     } else {
                         break;
                     }
                 }
                 b
-//                        .append(" • ")
                         .append(sub.toString())
                         .append("\n");
 
@@ -262,11 +265,9 @@ public class Main {
 
             MANAGER.getSavedNotes()
                     .stream()
-                    .filter(n -> {
-                        return n.getColorScheme().getLabel().equals("DEV_WIP") || n.getColorScheme().getLabel().equals("IN_REVIEW");
-                    })
+                    .filter(n -> summaryFilters.contains(n.getColorScheme().getLabel()))
                     .forEach(gen);
-//            System.out.println(b.toString());
+
             String data = b.toString();
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection selection = new StringSelection(data);
@@ -284,12 +285,13 @@ public class Main {
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
         });
     }
-    
-    private PreferenceListener settingsListener(){
+
+    private PreferenceListener settingsListener() {
         return new PreferenceListener() {
             @Override
             public void apply(PreferenceEvent property, Object value) {
-                
+                summaryFilters.clear();
+                summaryFilters.addAll(Arrays.asList(value.toString().split(",")));
             }
 
             @Override
