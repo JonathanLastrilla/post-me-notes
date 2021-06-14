@@ -8,11 +8,12 @@ package com.jon.postmenotes;
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.Preference;
+import com.jon.postmenotes.core.PreferenceEvent;
+import com.jon.postmenotes.core.PreferenceListener;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.MenuItem;
-import java.awt.MenuShortcut;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
@@ -20,17 +21,17 @@ import java.awt.TrayIcon;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -282,6 +283,20 @@ public class Main {
             NotesManager.serialize();
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
         });
+    }
+    
+    private PreferenceListener settingsListener(){
+        return new PreferenceListener() {
+            @Override
+            public void apply(PreferenceEvent property, Object value) {
+                
+            }
+
+            @Override
+            public List<PreferenceEvent> subscribedEvents() {
+                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER);
+            }
+        };
     }
 
     public static void main(String[] args) throws InterruptedException {

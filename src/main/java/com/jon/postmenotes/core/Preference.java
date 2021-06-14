@@ -6,7 +6,6 @@
 package com.jon.postmenotes.core;
 
 import com.jon.postmenotes.Main;
-import java.awt.EventQueue;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
