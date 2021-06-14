@@ -11,12 +11,7 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <name>Sticky Note Application</name>
-    <description>Version 1.0
-- auto save.
-- not title will be the first line of the note.
-- note closed after restoring will be shown in the same position when it was closed.
-- sample colors provided.
-</description>
+    <description>version γ</description>
     <build>
         <resources>
             <resource>
