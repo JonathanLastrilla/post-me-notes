@@ -29,3 +29,4 @@ target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 target/classes/images/icon.jpg
 target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
 dist/pmn.bat
+dist/bin/pmn.exe
