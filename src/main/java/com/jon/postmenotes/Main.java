@@ -62,8 +62,7 @@ public class Main {
     private Set<String> summaryFilters = new HashSet<>();
     private PreferenceListener appListener = settingsListener();
     private final static Properties properties = new Properties();
-
-    Note dummy;
+    private TrayIcon icon;
 
     static {
         try {
@@ -133,7 +132,7 @@ public class Main {
                 popUp.addSeparator();
                 popUp.add(exit());
 
-                TrayIcon icon = new TrayIcon(
+                icon = new TrayIcon(
                         createImageIcon(ICON_NAME, "")
                                 .getImage()
                                 .getScaledInstance(tray.getTrayIconSize().height,
@@ -143,6 +142,9 @@ public class Main {
                         popUp);
 
                 tray.add(icon);
+                icon.addActionListener(e -> {
+                    System.out.println("al");
+                });
 
             } catch (AWTException ex) {
                 LOG.log(Level.SEVERE, null, ex);
@@ -211,6 +213,7 @@ public class Main {
                 .filter(n -> !n.isHidden())
                 .map(PostMeNoteDialog::new)
                 .forEach(dialog -> {
+                    dialog.addTrayIconNotifier(TrayIcon.MessageType.INFO, s -> icon.displayMessage(dialog.getModel().getTitle(), s, TrayIcon.MessageType.INFO));
                     EventQueue.invokeLater(() -> {
                         dialog.setSizeExternal();
                         dialog.setVisible(true);
@@ -301,6 +304,10 @@ public class Main {
         };
     }
 
+    protected void startNotificationService() {
+
+    }
+
     public static void main(String[] args) throws InterruptedException {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -314,6 +321,7 @@ public class Main {
         }
 
         Main app = new Main();
+        app.startNotificationService();
         app.restoreSavedNotes();
         Runtime.getRuntime().addShutdownHook(app.shutdownHook());
     }

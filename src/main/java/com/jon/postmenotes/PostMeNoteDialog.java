@@ -17,6 +17,7 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
@@ -24,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -90,10 +93,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         addSeparatorJB = new javax.swing.JButton();
         tsJCB = new javax.swing.JCheckBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
+        jButton1 = new javax.swing.JButton();
         colorListJCB = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconImage(null);
+        setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
@@ -222,6 +227,17 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(tsJCB);
         jToolBar1.add(jSeparator2);
+
+        jButton1.setText("jButton1");
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton1);
 
         colorListJCB.setToolTipText("sticky color");
         colorListJCB.setOpaque(false);
@@ -435,6 +451,45 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_tsJCBActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+            notifyDefault("test");
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    
+    
+    
+
+    boolean isUpdating = false;
+    private int posX;
+    private int posY;
+    private final Note model;
+    private final PreferenceListener prefListener = listener();
+    private String TITLE_TEMPLATE = "%s - %s";
+    private boolean flaggedForDeletion = false;
+    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
+    private Preference preference = Preference.getInstance();
+    private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
+    private Consumer<String> systemTrayNotify;
+    private Map<TrayIcon.MessageType, Consumer<String>> notifiers = new HashMap<>();
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addSeparatorJB;
+    private javax.swing.JComboBox<String> colorListJCB;
+    private javax.swing.JButton deleteJB;
+    private javax.swing.JPopupMenu editorContext;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
+    private javax.swing.JToolBar.Separator jSeparator3;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JCheckBox lockedJCB;
+    private javax.swing.JButton newNoteJB;
+    private javax.swing.JLabel statusJL;
+    private javax.swing.JCheckBox tsJCB;
+    // End of variables declaration//GEN-END:variables
+
     boolean ctrl;
 
     private DocumentListener editorListener() {
@@ -580,36 +635,21 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             lockedJCB.doClick();
         }
     }
-
-    boolean isUpdating = false;
-    private int posX;
-    private int posY;
-    private final Note model;
-    private final PreferenceListener prefListener = listener();
-    private String TITLE_TEMPLATE = "%s - %s";
-    private boolean flaggedForDeletion = false;
-    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
-    private Preference preference = Preference.getInstance();
-    private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addSeparatorJB;
-    private javax.swing.JComboBox<String> colorListJCB;
-    private javax.swing.JButton deleteJB;
-    private javax.swing.JPopupMenu editorContext;
-    private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JToolBar.Separator jSeparator1;
-    private javax.swing.JToolBar.Separator jSeparator2;
-    private javax.swing.JToolBar.Separator jSeparator3;
-    private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JCheckBox lockedJCB;
-    private javax.swing.JButton newNoteJB;
-    private javax.swing.JLabel statusJL;
-    private javax.swing.JCheckBox tsJCB;
-    // End of variables declaration//GEN-END:variables
-
+    
     public Note getModel() {
         return model;
     }
+    public void addTrayIconNotifier(TrayIcon.MessageType type, Consumer<String> consumer){
+        notifiers.put(type, consumer);
+    }
+    
+    private void notifyDefault(String message){
+        if(notifiers.containsKey(TrayIcon.MessageType.INFO)){
+            notifiers.get(TrayIcon.MessageType.INFO).accept(message);
+        }else {
+            LOG.severe("missing system tray notifier for INFO");
+        }        
+    }
+    
+    
 }

@@ -5,6 +5,7 @@
  */
 package com.jon.postmenotes;
 
+import com.jon.postmenotes.core.ColorScheme;
 import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.NotesManager;
 import java.awt.Dialog;
@@ -44,9 +45,16 @@ public class NotesList extends javax.swing.JFrame {
         notesListJCB = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         restoreJB = new javax.swing.JButton();
+        infoJL = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("PostItList");
+
+        notesListJCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notesListJCBActionPerformed(evt);
+            }
+        });
 
         restoreJB.setText("Restore");
         restoreJB.addActionListener(new java.awt.event.ActionListener() {
@@ -55,6 +63,8 @@ public class NotesList extends javax.swing.JFrame {
             }
         });
 
+        infoJL.setOpaque(true);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -62,12 +72,17 @@ public class NotesList extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(notesListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(restoreJB)
-                        .addGap(0, 2, Short.MAX_VALUE))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(infoJL, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(notesListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(restoreJB)))
+                        .addGap(0, 2, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -77,8 +92,10 @@ public class NotesList extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(notesListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(restoreJB))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+                .addGap(11, 11, 11)
+                .addComponent(infoJL, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 2, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -95,8 +112,22 @@ public class NotesList extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_restoreJBActionPerformed
 
+    private void notesListJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notesListJCBActionPerformed
+        Note n = (Note) notesListJCB.getModel().getSelectedItem();
+        ColorScheme scheme = n.getColorScheme();
+        StringBuilder b = new StringBuilder();
+        b.append("<html>")
+        .append("<b> Status:</b> ").append(scheme.getLabel()).append("</br>")
+        .append("<b> Last Edited: </b> ").append(n.getTimeLastEdited().toString()).append("</br>")
+        .append("</html>");
+        infoJL.setBackground(scheme.getBg());
+        infoJL.setForeground(scheme.getFg());
+        infoJL.setText(b.toString());
+    }//GEN-LAST:event_notesListJCBActionPerformed
+
     private final NotesManager manager = NotesManager.getInstance();
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel infoJL;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JComboBox<String> notesListJCB;
     private javax.swing.JButton restoreJB;
