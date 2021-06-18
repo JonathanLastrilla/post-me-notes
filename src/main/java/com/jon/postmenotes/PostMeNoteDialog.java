@@ -435,6 +435,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             preference.requestUpdate(prefListener);
             JScrollBar scb = jScrollPane2.getVerticalScrollBar();
             scb.setValue(scb.getMaximum());
+            initMyReminders();
         });
     }//GEN-LAST:event_formWindowOpened
 
@@ -458,23 +459,26 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
     private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
         String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>"); 
-        if(!message.isBlank()){
+        if( message == null || message.isBlank()){
+            publish("reminder not added.");
             return;
         }
         Matcher m = p.matcher(message);
         if(m.find()){
             String time = m.group(1);
             int notifyBefore = -Integer.parseInt(m.group(2));
+            String messageString = m.group(3);
             LocalDateTime now = LocalDateTime.now();
             String inString = now.toString();
             String newDateString = String.format("%sT%s", inString.split("T")[0], time);
             LocalDateTime when = LocalDateTime.parse(newDateString);
             System.out.println(when);
             reminderManager.initializeContext(model)
-                .newReminderInContext(message, ChronoUnit.MINUTES.addTo(when, notifyBefore))
+                .newReminderInContext(messageString, ChronoUnit.MINUTES.addTo(when, notifyBefore))
                 .scheduleReminderInContextNow(icon);
+            publish("reminder scheduled for "+when);
         }else{
-            LOG.warning("invalid format!");
+            publish("reminder not added, wrong format");
         }        
     }//GEN-LAST:event_addReminderActionPerformed
 
@@ -496,7 +500,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private Map<TrayIcon.MessageType, Consumer<String>> notifiers = new HashMap<>();
     private ReminderManager reminderManager = ReminderManager.getInstance();
     private TrayIcon icon;
-    private final String reminderPattern = "^([0-9]{2}:[0-9]{2}) ([0-9]{0,2}).*";
+    private final String reminderPattern = "^([0-9]{1,2}:[0-9]{1,2}) ([0-9]{1,2})(.*)";
     Pattern p = Pattern.compile(reminderPattern);    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addReminder;
@@ -685,7 +689,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }
     
     private void initMyReminders(){
-        
+        reminderManager.initializeContext(model)
+                .scheduleUnexpiredNow(icon);
     }
     
 }

@@ -85,7 +85,7 @@ public class ReminderManager {
         try ( ObjectInputStream ois = new ObjectInputStream(new FileInputStream(REMINDER_FILE))) {
             List<NoteReminder> fromFile = (List<NoteReminder>) ois.readObject();
             LOG.log(Level.INFO, "loading reminders {0}", fromFile.size());
-            REMINDERS.addAll(fromFile);                       
+            REMINDERS.addAll(fromFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,10 +101,16 @@ public class ReminderManager {
         contextNote = note;
         REMINDERS.stream()
                 .filter(rem -> rem.getNote().equals(note.getTitle()))
-                .filter(NoteReminder::isExpired)
+                .filter(rem -> !rem.isExpired())
                 .forEach(context::add);
         contextInitialized = true;
         return this;
+    }
+
+    private void clearContext() {
+        reminderInContext = null;
+        context.clear();
+        contextInitialized = false;
     }
 
     public ReminderManager newReminderInContext(String message, LocalDateTime when) {
@@ -132,24 +138,40 @@ public class ReminderManager {
         };
         long delay = ChronoUnit.MINUTES.between(LocalDateTime.now(), reminderInContext.getRemindAt());
         LOG.log(Level.INFO, "scheduled at {0} {1}", new Object[]{reminderInContext.getRemindAt(), delay});
-        ((TrayIconRunnable) remindertask).setReminder(reminderInContext);
+        remindertask.setReminder(reminderInContext);
         scheduler.schedule(
                 remindertask,
                 delay,
                 TimeUnit.MINUTES);
 
-        reminderInContext = null;
-        context.clear();
-        contextInitialized = false;
+        clearContext();
     }
 
-    public void scheduleUnexpiredNow(final TrayIcon icon){
+    public void scheduleUnexpiredNow(final TrayIcon icon) {
         if (!contextInitialized) {
             throw new RuntimeException("must call initializeContext first");
         }
-        
+
+        for (NoteReminder noteReminder : context) {
+            long delay = ChronoUnit.MINUTES.between(LocalDateTime.now(), noteReminder.getRemindAt());
+            TrayIconRunnable r = new TrayIconRunnable() {
+                @Override
+                protected TrayIcon getIcon() {
+                    return icon;
+                }
+            };
+            r.setReminder(noteReminder);
+
+            scheduler.schedule(r, delay, TimeUnit.MINUTES);
+
+            LOG.log(Level.INFO, "scheduling {0} {1}, delay={2}", new Object[]{
+                noteReminder.getMessage(),
+                noteReminder.getRemindAt(),
+                delay});
+        }
+        clearContext();
     }
-    
+
     public static class NoteReminder implements Serializable {
 
         public final static long serialVersionUID = 5265436L;
@@ -198,7 +220,7 @@ public class ReminderManager {
         }
 
         public boolean isExpired() {
-            return expired && LocalDateTime.now().isBefore(remindAt);
+            return expired;
         }
 
         public void setExpired(boolean expired) {

@@ -12,7 +12,6 @@ import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
 import com.jon.postmenotes.core.ReminderManager;
 import java.awt.AWTException;
-import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -284,8 +283,7 @@ public class Main {
     }
 
     public Thread shutdownHook() {
-        return new Thread(() -> {
-            
+        return new Thread(() -> {            
             LOG.log(Level.INFO, "saving preferences..");
             Preference.getInstance().serialize();           
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
