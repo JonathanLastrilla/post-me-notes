@@ -1,4 +1,8 @@
-palegreen1,#000000,#b8e0d2
-brue,#eeeee4,#154c79
-woaahrm,#ffffff,#e28743
-goneYoPrimos,#bee8fa,#5d74b9
+DEV_WIP,#000000,#b8e0d2
+IN_REVIEW,#eeeee4,#154c79
+PRE_COMMIT,#ffffff,#e28743
+CHECKED_IN,#bee8fa,#5d74b9
+NOT_STARTED,#F3E0EC,#849324
+NOTE,#a7c4bc,#2f5d62
+PARKED,#D78521,#F2D398
+PEND_ML_LIVE,#FBFFB9,#EC7357
