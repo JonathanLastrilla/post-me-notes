@@ -11,6 +11,7 @@ import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
+import com.jon.postmenotes.core.ReminderManager;
 import com.jon.postmenotes.core.labeltasks.LabelTask;
 import com.jon.postmenotes.core.labeltasks.LabelTaskManager;
 import java.awt.Component;
@@ -22,6 +23,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,6 +34,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
@@ -93,7 +98,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         addSeparatorJB = new javax.swing.JButton();
         tsJCB = new javax.swing.JCheckBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
-        jButton1 = new javax.swing.JButton();
+        addReminder = new javax.swing.JButton();
         colorListJCB = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -228,16 +233,16 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.add(tsJCB);
         jToolBar1.add(jSeparator2);
 
-        jButton1.setText("jButton1");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        addReminder.setText("add reminder");
+        addReminder.setFocusable(false);
+        addReminder.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addReminder.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addReminder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                addReminderActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton1);
+        jToolBar1.add(addReminder);
 
         colorListJCB.setToolTipText("sticky color");
         colorListJCB.setOpaque(false);
@@ -451,9 +456,24 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_tsJCBActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-            notifyDefault("test");
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
+        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>"); 
+        Matcher m = p.matcher(message);
+        if(m.find()){
+            String time = m.group(1);
+            int notifyBefore = -Integer.parseInt(m.group(2));
+            LocalDateTime now = LocalDateTime.now();
+            String inString = now.toString();
+            String newDateString = String.format("%sT%s", inString.split("T")[0], time);
+            LocalDateTime when = LocalDateTime.parse(newDateString);
+            System.out.println(when);
+            reminderManager.initializeContext(model)
+                .newReminderInContext(message, ChronoUnit.MINUTES.addTo(when, notifyBefore))
+                .scheduleReminderInContextNow(icon);
+        }else{
+            LOG.warning("invalid format!");
+        }        
+    }//GEN-LAST:event_addReminderActionPerformed
 
     
     
@@ -471,12 +491,16 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
     private Consumer<String> systemTrayNotify;
     private Map<TrayIcon.MessageType, Consumer<String>> notifiers = new HashMap<>();
+    private ReminderManager reminderManager = ReminderManager.getInstance();
+    private TrayIcon icon;
+    private final String reminderPattern = "^([0-9]{2}:[0-9]{2}) ([0-9]{0,2}).*";
+    Pattern p = Pattern.compile(reminderPattern);    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addReminder;
     private javax.swing.JButton addSeparatorJB;
     private javax.swing.JComboBox<String> colorListJCB;
     private javax.swing.JButton deleteJB;
     private javax.swing.JPopupMenu editorContext;
-    private javax.swing.JButton jButton1;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -553,7 +577,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 statusJL,
                 addSeparatorJB,
                 tsJCB,
-                lockedJCB
+                lockedJCB,
+                addReminder
                 )
                 .stream()
                 .forEach(fgSetter);
@@ -568,7 +593,8 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 statusJL,
                 addSeparatorJB,
                 tsJCB,
-                lockedJCB
+                lockedJCB,
+                addReminder
                 )
                 .stream()
                 .forEach(bgSetter);
@@ -651,5 +677,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }        
     }
     
+    public void setTrayIcon(TrayIcon icon){
+        this.icon = icon;
+    }
+    
+    private void initMyReminders(){
+        
+    }
     
 }

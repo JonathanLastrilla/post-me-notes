@@ -10,7 +10,9 @@ import com.jon.postmenotes.core.Note;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
+import com.jon.postmenotes.core.ReminderManager;
 import java.awt.AWTException;
+import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -213,6 +215,7 @@ public class Main {
                 .filter(n -> !n.isHidden())
                 .map(PostMeNoteDialog::new)
                 .forEach(dialog -> {
+                    dialog.setTrayIcon(icon);
                     dialog.addTrayIconNotifier(TrayIcon.MessageType.INFO, s -> icon.displayMessage(dialog.getModel().getTitle(), s, TrayIcon.MessageType.INFO));
                     EventQueue.invokeLater(() -> {
                         dialog.setSizeExternal();
@@ -282,10 +285,13 @@ public class Main {
 
     public Thread shutdownHook() {
         return new Thread(() -> {
-            Preference.getInstance().serialize();
+            
             LOG.log(Level.INFO, "saving preferences..");
-            NotesManager.serialize();
+            Preference.getInstance().serialize();           
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
+            NotesManager.serialize();
+            LOG.log(Level.INFO, "saving reminders..{0}", ReminderManager.getSavedNotifications());
+            ReminderManager.serialize();
         });
     }
 
