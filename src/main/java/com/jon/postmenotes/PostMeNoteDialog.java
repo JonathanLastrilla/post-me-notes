@@ -458,6 +458,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
 
     private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
         String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>"); 
+        if(!message.isBlank()){
+            return;
+        }
         Matcher m = p.matcher(message);
         if(m.find()){
             String time = m.group(1);
