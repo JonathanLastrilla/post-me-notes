@@ -30,6 +30,7 @@ import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,6 +38,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -128,7 +131,7 @@ public class ReminderManager {
             throw new RuntimeException("no reminder in context");
         }
 
-        TrayIconRunnable remindertask = new TrayIconRunnable() {
+        TrayIconRunnable r = new TrayIconRunnable() {
 
             @Override
             protected TrayIcon getIcon() {
@@ -137,12 +140,14 @@ public class ReminderManager {
 
         };
         long delay = ChronoUnit.MINUTES.between(LocalDateTime.now(), reminderInContext.getRemindAt());
-        LOG.log(Level.INFO, "scheduled at {0} {1}", new Object[]{reminderInContext.getRemindAt(), delay});
-        remindertask.setReminder(reminderInContext);
-        scheduler.schedule(
-                remindertask,
-                delay,
-                TimeUnit.MINUTES);
+
+        LOG.log(Level.INFO, "scheduling {0} {1}, delay={2}", new Object[]{
+            reminderInContext.getMessage(),
+            reminderInContext.getRemindAt(),
+            delay});
+
+        r.setReminder(reminderInContext);
+        scheduler.schedule(r, delay, TimeUnit.MINUTES);
 
         clearContext();
     }
@@ -233,6 +238,9 @@ public class ReminderManager {
 
         private TrayIcon icon;
         private NoteReminder reminder;
+        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+        private ActionListener al;
+        private int DETAIL_EXPIRY_SECONDS = 3;
 
         protected TrayIcon getIcon() {
             return icon;
@@ -260,27 +268,69 @@ public class ReminderManager {
 
         @Override
         public void run() {
-            getIcon().displayMessage(getNote(), getMessage(), TrayIcon.MessageType.INFO);
+            String formattedMessage = String.format("%s: %s", formatter.format(getRemindAt()), getMessage());
+            getIcon().displayMessage(getNote(), formattedMessage, TrayIcon.MessageType.INFO);
+            al = newActionListener();
+            setActionListener(al);
+            autoExpireActionListener();
             reminder.setExpired(true);
         }
 
+        private ActionListener newActionListener() {
+            return e -> {
+                StringBuilder message = new StringBuilder();
+                message.append("<html>")
+                        .append(formatter.format(getRemindAt())).append("</br>")
+                        .append("<p>").append(getMessage()).append("</p>")
+                        .append("</html>");
+                JOptionPane.showMessageDialog(null, message, "REMINDER: " + getNote(), JOptionPane.INFORMATION_MESSAGE);
+                removeActionListener(al);
+            };
+        }
+
+        private void setActionListener(ActionListener al) {
+            getIcon().addActionListener(al);
+        }
+
+        private void removeActionListener(ActionListener al) {
+            getIcon().removeActionListener(al);
+        }
+
+        private void autoExpireActionListener() {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(DETAIL_EXPIRY_SECONDS * 1000);
+                    TrayIcon ti = getIcon();
+                    synchronized (ti) {
+                        for (ActionListener actionListener : ti.getActionListeners()) {
+                            if (al != null && actionListener.equals(al)) {
+                                removeActionListener(al);
+                                LOG.log(Level.INFO, "detail action listener {0} expired", al);                                
+                            }
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
+                }
+            }).start();
+        }
     }
 
-    public static void main(String[] args) throws AWTException {
-        SystemTray tray = SystemTray.getSystemTray();
-        TrayIcon dummy = new TrayIcon(createImageIcon(ICON_NAME, "")
-                .getImage()
-                .getScaledInstance(tray.getTrayIconSize().height,
-                        tray.getTrayIconSize().height,
-                        Image.SCALE_DEFAULT), "test");
-
-        tray.add(dummy);
-
-        ReminderManager mgr = getInstance();
-        Note note = new DefaultNoteInstance("NOTE");
-        mgr.initializeContext(note)
-                .newReminderInContext("do this", ChronoUnit.MINUTES.addTo(LocalDateTime.now(), 2))
-                .scheduleReminderInContextNow(dummy);
-
-    }
+//    public static void main(String[] args) throws AWTException {
+//        SystemTray tray = SystemTray.getSystemTray();
+//        TrayIcon dummy = new TrayIcon(createImageIcon(ICON_NAME, "")
+//                .getImage()
+//                .getScaledInstance(tray.getTrayIconSize().height,
+//                        tray.getTrayIconSize().height,
+//                        Image.SCALE_DEFAULT), "test");
+//
+//        tray.add(dummy);
+//
+//        ReminderManager mgr = getInstance();
+//        Note note = new DefaultNoteInstance("NOTE");
+//        mgr.initializeContext(note)
+//                .newReminderInContext("do this", ChronoUnit.MINUTES.addTo(LocalDateTime.now(), 2))
+//                .scheduleReminderInContextNow(dummy);
+//
+//    }
 }

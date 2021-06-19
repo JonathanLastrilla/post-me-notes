@@ -142,11 +142,7 @@ public class Main {
                         String.format("PostMeNotes - %s", properties.getProperty("version")),
                         popUp);
 
-                tray.add(icon);
-                icon.addActionListener(e -> {
-                    System.out.println("al");
-                });
-
+                tray.add(icon);                               
             } catch (AWTException ex) {
                 LOG.log(Level.SEVERE, null, ex);
                 System.exit(1);

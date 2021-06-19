@@ -24,6 +24,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Arrays;
@@ -55,8 +56,6 @@ import javax.swing.text.BadLocationException;
  * @author jlastril
  */
 public class PostMeNoteDialog extends javax.swing.JDialog {
-
-    
 
     /**
      * Creates new form PostMeNoteDialog
@@ -314,7 +313,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             updateColr(model.getColorScheme());
             colorList.setSelectedItem(model.getColorScheme());
         }
-        colorListJCB.setRenderer(schemesRenderer());       
+        colorListJCB.setRenderer(schemesRenderer());
         setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
         addSeparatorJB.setEnabled(model.isLocked());
         tsJCB.setEnabled(model.isLocked());
@@ -410,7 +409,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
-        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);        
+        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
     }//GEN-LAST:event_formWindowLostFocus
 
     private void deleteJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteJBActionPerformed
@@ -431,7 +430,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        SwingUtilities.invokeLater(() -> {           
+        SwingUtilities.invokeLater(() -> {
             preference.requestUpdate(prefListener);
             JScrollBar scb = jScrollPane2.getVerticalScrollBar();
             scb.setValue(scb.getMaximum());
@@ -440,12 +439,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void addSeparatorJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSeparatorJBActionPerformed
-        try {            
+        try {
             jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
                     "\n-------------------\n", null);
-            if(tsJCB.isSelected()){
+            if (tsJCB.isSelected()) {
                 jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
-                    sdf.format(new Date())+"\n", null);
+                        sdf.format(new Date()) + "\n", null);
             }
             jEditorPane1.setCaretPosition(jEditorPane1.getDocument().getLength());
         } catch (BadLocationException ex) {
@@ -458,50 +457,53 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_tsJCBActionPerformed
 
     private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
-        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>"); 
-        if( message == null || message.isBlank()){
+        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>");
+        if (message == null || message.isBlank()) {
             publish("reminder not added.");
             return;
         }
         Matcher m = p.matcher(message);
-        if(m.find()){
-            String time = m.group(1);
-            int notifyBefore = -Integer.parseInt(m.group(2));
-            String messageString = m.group(3);
-            LocalDateTime now = LocalDateTime.now();
-            String inString = now.toString();
-            String newDateString = String.format("%sT%s", inString.split("T")[0], time);
-            LocalDateTime when = LocalDateTime.parse(newDateString);
-            System.out.println(when);
-            reminderManager.initializeContext(model)
-                .newReminderInContext(messageString, ChronoUnit.MINUTES.addTo(when, notifyBefore))
-                .scheduleReminderInContextNow(icon);
-            publish("reminder scheduled for "+when);
-        }else{
+        if (m.find()) {
+            try {
+                String time = m.group(1);
+                int notifyBefore = -Integer.parseInt(m.group(2));
+                String messageString = m.group(3);
+                LocalDateTime now = LocalDateTime.now();
+                String inString = now.toString();
+                String newDateString = String.format("%sT%s", inString.split("T")[0], time);
+                LocalDateTime when = LocalDateTime.parse(newDateString);
+                System.out.println(when);
+                reminderManager.initializeContext(model)
+                        .newReminderInContext(messageString, ChronoUnit.MINUTES.addTo(when, notifyBefore))
+                        .scheduleReminderInContextNow(icon);
+                publish("reminder scheduled for " + when);
+            } catch (DateTimeParseException e) {
+                publish("SYSTEM: " + e.getMessage());
+            }
+
+        } else {
             publish("reminder not added, wrong format");
-        }        
+        }
     }//GEN-LAST:event_addReminderActionPerformed
 
-    
-    
-    
-
+    private final PreferenceListener prefListener = listener();
+    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
+    private final Preference preference = Preference.getInstance();
+    private final SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
+    private final ReminderManager reminderManager = ReminderManager.getInstance();
+    private final String reminderPattern = "^([0-9]{1,2}:[0-9]{1,2}) ([0-9]{1,2})(.*)";
+    private final Pattern p = Pattern.compile(reminderPattern);
+    private final String TITLE_TEMPLATE = "%s - %s";
     boolean isUpdating = false;
     private int posX;
     private int posY;
     private final Note model;
-    private final PreferenceListener prefListener = listener();
-    private String TITLE_TEMPLATE = "%s - %s";
     private boolean flaggedForDeletion = false;
-    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
-    private Preference preference = Preference.getInstance();
-    private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
     private Consumer<String> systemTrayNotify;
     private Map<TrayIcon.MessageType, Consumer<String>> notifiers = new HashMap<>();
-    private ReminderManager reminderManager = ReminderManager.getInstance();
     private TrayIcon icon;
-    private final String reminderPattern = "^([0-9]{1,2}:[0-9]{1,2}) ([0-9]{1,2})(.*)";
-    Pattern p = Pattern.compile(reminderPattern);    
+    private Font ourFont;
+    private int ourFontSize;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addReminder;
     private javax.swing.JButton addSeparatorJB;
@@ -551,7 +553,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     Thread.sleep(3000);
                     model.setText(jEditorPane1.getText());
                     isUpdating = false;
-                    new Thread(() -> {                        
+                    new Thread(() -> {
                         statusJL.setText("saved.");
                         try {
                             Thread.sleep(2000);
@@ -586,7 +588,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 tsJCB,
                 lockedJCB,
                 addReminder
-                )
+        )
                 .stream()
                 .forEach(fgSetter);
 
@@ -602,7 +604,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 tsJCB,
                 lockedJCB,
                 addReminder
-                )
+        )
                 .stream()
                 .forEach(bgSetter);
         UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
@@ -632,25 +634,26 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
         }).start();
-    }    
-    
-    private PreferenceListener listener(){
+    }
+
+    private PreferenceListener listener() {
         return new PreferenceListener() {
             @Override
             public void apply(PreferenceEvent property, Object value) {
-                switch(property){
-                    case FONT:{
-                        Font f = (Font) value;                        
-                        jEditorPane1.setFont(new Font(f.getName(), 0, 16));
+                switch (property) {
+                    case FONT: {
+                        Font f = (Font) value;
+                        Font toUse = new Font(f.getName(), 0, 16);
+                        jEditorPane1.setFont(toUse);
                         break;
                     }
-                    case FONT_SIZE:{                        
+                    case FONT_SIZE: {
                         Font f = jEditorPane1.getFont();
-                        jEditorPane1.setFont(new Font(f.getName(), 0, (Integer)value));
+                        jEditorPane1.setFont(new Font(f.getName(), 0, (Integer) value));
                         break;
                     }
-                    default :{
-                        LOG.log(Level.FINE,property.name());
+                    default: {
+                        LOG.log(Level.FINE, property.name());
                     }
                 }
             }
@@ -661,36 +664,37 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             }
         };
     }
-    
+
     @LabelTask(label = "NOTE")
-    public void disableEdit(){
-        if(lockedJCB.isSelected()){
+    public void disableEdit() {
+        if (lockedJCB.isSelected()) {
             lockedJCB.doClick();
         }
     }
-    
+
     public Note getModel() {
         return model;
     }
-    public void addTrayIconNotifier(TrayIcon.MessageType type, Consumer<String> consumer){
+
+    public void addTrayIconNotifier(TrayIcon.MessageType type, Consumer<String> consumer) {
         notifiers.put(type, consumer);
     }
-    
-    private void notifyDefault(String message){
-        if(notifiers.containsKey(TrayIcon.MessageType.INFO)){
+
+    private void notifyDefault(String message) {
+        if (notifiers.containsKey(TrayIcon.MessageType.INFO)) {
             notifiers.get(TrayIcon.MessageType.INFO).accept(message);
-        }else {
+        } else {
             LOG.severe("missing system tray notifier for INFO");
-        }        
+        }
     }
-    
-    public void setTrayIcon(TrayIcon icon){
+
+    public void setTrayIcon(TrayIcon icon) {
         this.icon = icon;
     }
-    
-    private void initMyReminders(){
+
+    private void initMyReminders() {
         reminderManager.initializeContext(model)
                 .scheduleUnexpiredNow(icon);
     }
-    
+
 }
