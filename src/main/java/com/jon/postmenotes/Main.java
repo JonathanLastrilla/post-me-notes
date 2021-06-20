@@ -7,6 +7,7 @@ package com.jon.postmenotes;
 
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.NoteUtility;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
@@ -38,6 +39,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -65,6 +68,7 @@ public class Main {
     private final static Properties properties = new Properties();
     private TrayIcon icon;
     private JFrame prefUI;
+    private int separatorCharCount = 17;
 
     static {
         try {
@@ -235,37 +239,26 @@ public class Main {
     }
 
     private ActionListener genReport() {
+        char sep = '-';
+        String separator = IntStream.range(0, separatorCharCount)
+                .mapToObj((i) -> Character.toString(sep))
+                .collect(Collectors.joining());
+
         return a -> {
             final StringBuilder b = new StringBuilder();
             Calendar c = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd");
-            b.append(sdf.format(c.getTime())).append("\n");
-
-            final Pattern pattern = Pattern.compile("^-+");
+            b.append(sdf.format(c.getTime())).append("\n\n");
 
             Consumer<Note> gen = note -> {
-                Stack<String> stack = new Stack<>();
-                for (String string : note.getText().split("\n")) {
-                    stack.push(string);
+                NoteUtility nUtil = NoteUtility.getInstance(note);
+                String paragraph = nUtil.getLastParagraph();
+                String[] lines = paragraph.split("\n");
+                b.append(note.getTitle()).append("\n");
+                for (String line : lines) {
+                    b.append("• ").append(line).append("\n");
                 }
-                b.append("-------------------")
-                        .append("\n")
-                        .append(note.getTitle())
-                        .append("\n");
-                final StringBuilder sub = new StringBuilder();
-                while (!stack.isEmpty()) {
-                    String top = stack.pop();
-                    boolean terminate = pattern.matcher(top).find();
-                    if (!terminate) {
-                        sub.insert(0, "• " + top + "\n");
-                    } else {
-                        break;
-                    }
-                }
-                b
-                        .append(sub.toString())
-                        .append("\n");
-
+                b.append(separator).append("\n");
             };
 
             MANAGER.getSavedNotes()
@@ -297,13 +290,24 @@ public class Main {
         return new PreferenceListener() {
             @Override
             public void apply(PreferenceEvent property, Object value) {
-                summaryFilters.clear();
-                summaryFilters.addAll(Arrays.asList(value.toString().split(",")));
+                switch (property) {
+                    case SUMMARY_FILTER:
+                        summaryFilters.clear();
+                        summaryFilters.addAll(Arrays.asList(value.toString().split(",")));
+                        break;
+                    case SEPARATOR_CHAR_COUNT: {
+                        separatorCharCount = ((Long) value).intValue();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
             }
 
             @Override
             public List<PreferenceEvent> subscribedEvents() {
-                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER);
+                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER, PreferenceEvent.SEPARATOR_CHAR_COUNT);
             }
         };
     }
