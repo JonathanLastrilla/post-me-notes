@@ -8,6 +8,7 @@ package com.jon.postmenotes;
 import com.jon.postmenotes.core.ColorScheme;
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.NoteUtility;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
@@ -15,6 +16,7 @@ import com.jon.postmenotes.core.ReminderManager;
 import com.jon.postmenotes.core.labeltasks.LabelTask;
 import com.jon.postmenotes.core.labeltasks.LabelTaskManager;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -22,10 +24,14 @@ import java.awt.TrayIcon;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,8 +48,8 @@ import java.util.stream.IntStream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.ScrollPaneConstants;
@@ -447,6 +453,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             JScrollBar scb = jScrollPane2.getVerticalScrollBar();
             scb.setValue(scb.getMaximum());
             initMyReminders();
+            buildGoToLinks();
         });
     }//GEN-LAST:event_formWindowOpened
 
@@ -578,6 +585,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     isUpdating = false;
                     new Thread(() -> {
                         statusJL.setText("saved.");
+                        buildGoToLinks();
                         try {
                             Thread.sleep(2000);
                             statusJL.setText("");
@@ -725,6 +733,32 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private void initMyReminders() {
         reminderManager.initializeContext(model)
                 .scheduleUnexpiredNow(icon);
+    }
+    List<String> gotoLinks = new ArrayList<>();
+    private void buildGoToLinks(){
+        NoteUtility util = NoteUtility.getInstance(model);
+        editorContext.removeAll();
+        util.getUrls()
+                .stream()
+                .map(String::strip)
+                .filter(url -> !gotoLinks.contains(url))
+                .forEach(gotoLinks::add);
+        gotoLinks.forEach(gotoLink -> {
+            JMenuItem jmi = new JMenuItem(gotoLink);
+            jmi.setFont(ourFont);
+            
+            jmi.addActionListener(al -> {
+                if(Desktop.isDesktopSupported()){
+                    Desktop d = Desktop.getDesktop();
+                    try {
+                        d.browse(new URI(gotoLink));
+                    } catch (URISyntaxException | IOException ex) {
+                        LOG.log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            editorContext.add(jmi);
+        });
     }
 
 }

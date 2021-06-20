@@ -32,13 +32,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author jlastril
  */
 public class Preference {
-
+    private static final Logger LOG = Logger.getLogger(Preference.class.getSimpleName());
     static final Map<PreferenceEvent, Object> prefData;
     private final List<PreferenceListener> listeners = new ArrayList<>();
 
@@ -94,6 +96,9 @@ public class Preference {
     }
 
     public Object get(PreferenceEvent arg0) {
+        if(!prefData.containsKey(arg0)){
+            LOG.log(Level.SEVERE, "no data for {0}", arg0);
+        }
         return prefData.get(arg0);
     }
 

@@ -126,8 +126,10 @@ public class PreferenceUI extends javax.swing.JFrame {
 
             }
         });
-
-        separatorCountJFTF.setValue((long) pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT));
+        if(pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT) !=null ){
+            separatorCountJFTF.setValue((long) pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT));
+        }
+        
         labelJCB.actionPerformed(null);
     }
 
