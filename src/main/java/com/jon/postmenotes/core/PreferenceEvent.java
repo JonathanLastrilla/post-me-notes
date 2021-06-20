@@ -28,5 +28,5 @@ package com.jon.postmenotes.core;
  * @author jlastril
  */
 public enum PreferenceEvent {
-    FONT, FONT_SIZE,SUMMARY_FILTER
+    FONT, FONT_SIZE,SUMMARY_FILTER, SEPARATOR_CHAR_COUNT
 }

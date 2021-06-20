@@ -111,21 +111,23 @@ public class PreferenceUI extends javax.swing.JFrame {
 
             @Override
             public void intervalAdded(ListDataEvent arg0) {
-                System.out.println("add "+a.get());
+                System.out.println("add " + a.get());
                 preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
             }
 
             @Override
             public void intervalRemoved(ListDataEvent arg0) {
-                System.out.println("rem "+a.get());
+                System.out.println("rem " + a.get());
                 preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
             }
 
             @Override
             public void contentsChanged(ListDataEvent arg0) {
-                
+
             }
         });
+
+        separatorCountJFTF.setValue((long) pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT));
     }
 
     /**
@@ -153,6 +155,8 @@ public class PreferenceUI extends javax.swing.JFrame {
         addFilterJB = new javax.swing.JButton();
         removeFilterJB = new javax.swing.JButton();
         overwriteAllJCB = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        separatorCountJFTF = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -207,6 +211,15 @@ public class PreferenceUI extends javax.swing.JFrame {
 
         overwriteAllJCB.setText("overwrite all");
 
+        jLabel3.setText("Separator (-) count");
+
+        separatorCountJFTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        separatorCountJFTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                separatorCountJFTFPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -238,7 +251,11 @@ public class PreferenceUI extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(overwriteAllJCB))
                             .addComponent(jLabel4)
-                            .addComponent(removeFilterJB))
+                            .addComponent(removeFilterJB)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(separatorCountJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -253,7 +270,11 @@ public class PreferenceUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(separatorCountJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(removeFilterJB)
@@ -263,7 +284,7 @@ public class PreferenceUI extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(labelJL, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(addFilterJB)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                .addGap(32, 32, 32)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exportJB)
                     .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -296,7 +317,6 @@ public class PreferenceUI extends javax.swing.JFrame {
             try {
                 preferencePropertyPublisher.publish(PreferenceEvent.FONT_SIZE, Integer.parseInt(fontSizeJFTF.getText()));
             } catch (NumberFormatException e) {
-
             }
         }
     }//GEN-LAST:event_fontSizeJFTFPropertyChange
@@ -323,9 +343,15 @@ public class PreferenceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_addFilterJBActionPerformed
 
     private void removeFilterJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeFilterJBActionPerformed
-       int tr = summaryFilterJL.getSelectedIndex();
-       summaryModel.removeElementAt(tr);
+        int tr = summaryFilterJL.getSelectedIndex();
+        summaryModel.removeElementAt(tr);
     }//GEN-LAST:event_removeFilterJBActionPerformed
+
+    private void separatorCountJFTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_separatorCountJFTFPropertyChange
+        if (evt.getPropertyName().equals("value")) {
+            preferencePropertyPublisher.publish(PreferenceEvent.SEPARATOR_CHAR_COUNT, separatorCountJFTF.getValue());
+        }
+    }//GEN-LAST:event_separatorCountJFTFPropertyChange
 
     private void publish(String message) {
         new Thread(() -> {
@@ -353,12 +379,14 @@ public class PreferenceUI extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField fontSizeJFTF;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JComboBox<String> labelJL;
     private javax.swing.JCheckBox overwriteAllJCB;
     private javax.swing.JButton removeFilterJB;
+    private javax.swing.JFormattedTextField separatorCountJFTF;
     private javax.swing.JLabel statusJL;
     private javax.swing.JList<String> summaryFilterJL;
     // End of variables declaration//GEN-END:variables
