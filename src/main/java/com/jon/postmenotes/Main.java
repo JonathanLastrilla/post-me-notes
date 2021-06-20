@@ -64,6 +64,7 @@ public class Main {
     private PreferenceListener appListener = settingsListener();
     private final static Properties properties = new Properties();
     private TrayIcon icon;
+    private JFrame prefUI;
 
     static {
         try {
@@ -142,7 +143,7 @@ public class Main {
                         String.format("PostMeNotes - %s", properties.getProperty("version")),
                         popUp);
 
-                tray.add(icon);                               
+                tray.add(icon);
             } catch (AWTException ex) {
                 LOG.log(Level.SEVERE, null, ex);
                 System.exit(1);
@@ -221,12 +222,15 @@ public class Main {
 
     private ActionListener showPref() {
         return a -> {
-            final JFrame prefUI = new PreferenceUI();
-            prefUI.pack();
-            prefUI.setLocationRelativeTo(null);
+            if (prefUI == null) {
+                prefUI = new PreferenceUI();
+                prefUI.pack();
+                prefUI.setLocationRelativeTo(null);
+            }
             EventQueue.invokeLater(() -> {
                 prefUI.setVisible(true);
             });
+
         };
     }
 
@@ -279,9 +283,9 @@ public class Main {
     }
 
     public Thread shutdownHook() {
-        return new Thread(() -> {            
+        return new Thread(() -> {
             LOG.log(Level.INFO, "saving preferences..");
-            Preference.getInstance().serialize();           
+            Preference.getInstance().serialize();
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
             NotesManager.serialize();
             LOG.log(Level.INFO, "saving reminders..{0}", ReminderManager.getSavedNotifications());
