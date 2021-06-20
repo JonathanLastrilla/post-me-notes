@@ -455,7 +455,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_tsJCBActionPerformed
 
     private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
-        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>");
+        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>", "New Reminder", JOptionPane.QUESTION_MESSAGE);
         if (message == null || message.isBlank()) {
             publish("reminder not added.");
             return;
