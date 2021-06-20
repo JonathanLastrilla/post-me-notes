@@ -182,6 +182,7 @@ public class ReminderManager {
         public final static long serialVersionUID = 5265436L;
         private String note;
         private String message;
+        private String lastParagraph;
         private LocalDateTime remindAt;
         private long id = 0;
         private boolean expired = false;
@@ -194,6 +195,7 @@ public class ReminderManager {
             this.note = note.getTitle();
             this.message = message;
             this.remindAt = remindAt;
+            this.lastParagraph = NoteUtility.getInstance(note).getLastParagraph();
         }
 
         public LocalDateTime getRemindAt() {
@@ -232,6 +234,10 @@ public class ReminderManager {
             this.expired = expired;
         }
 
+        public String getLastParagraph() {
+            return lastParagraph;
+        }
+
     }
 
     static abstract class TrayIconRunnable implements Runnable {
@@ -240,7 +246,7 @@ public class ReminderManager {
         private NoteReminder reminder;
         private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
         private ActionListener al;
-        private int DETAIL_EXPIRY_SECONDS = 3;
+        private int DETAIL_EXPIRY_SECONDS = 5;
 
         protected TrayIcon getIcon() {
             return icon;
@@ -262,6 +268,10 @@ public class ReminderManager {
             return reminder.getMessage();
         }
 
+        public String getNoteContent() {
+            return reminder.getLastParagraph();
+        }
+
         protected void setReminder(NoteReminder reminder) {
             this.reminder = reminder;
         }
@@ -278,11 +288,12 @@ public class ReminderManager {
 
         private ActionListener newActionListener() {
             return e -> {
-                StringBuilder message = new StringBuilder();
-                message.append("<html>")
-                        .append(formatter.format(getRemindAt())).append("</br>")
-                        .append("<p>").append(getMessage()).append("</p>")
-                        .append("</html>");
+                StringBuilder message = new StringBuilder()
+                        .append("<html>")
+                        .append("<h3>").append(formatter.format(getRemindAt())).append("</h3>")
+                        .append("<h4>").append(getMessage()).append("</h4>")
+                        .append("<hr/>").append(getNoteContent())
+                        .append("");
                 JOptionPane.showMessageDialog(null, message, "REMINDER: " + getNote(), JOptionPane.INFORMATION_MESSAGE);
                 removeActionListener(al);
             };
@@ -305,7 +316,7 @@ public class ReminderManager {
                         for (ActionListener actionListener : ti.getActionListeners()) {
                             if (al != null && actionListener.equals(al)) {
                                 removeActionListener(al);
-                                LOG.log(Level.INFO, "detail action listener {0} expired", al);                                
+                                LOG.log(Level.INFO, "detail action listener {0} expired", al);
                             }
                         }
                     }
