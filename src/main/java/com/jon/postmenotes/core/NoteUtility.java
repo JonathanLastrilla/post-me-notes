@@ -45,7 +45,7 @@ public class NoteUtility {
     private final Note model;
     final Pattern pattern = Pattern.compile("^[-]+$");
     private final Pattern MSUrlPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*(:(0-9)*)*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\\\+&amp;%\\$#_]*)?$");
-
+    private final Pattern ORAPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/([\\.\\w-]+\\/)+([\\w\\.])*([\\?])*(\\w+=\\w*&*)*$");
     private NoteUtility(Note model) {
         this.model = model;
     }
@@ -62,8 +62,9 @@ public class NoteUtility {
     public List<String> getUrls() {
         List<String> list = new ArrayList<>();
         for (String line : model.getText().split("[\r]*\n")) {
-            Matcher m = MSUrlPattern.matcher(line);
-            if (m.matches()) {
+            Matcher m = ORAPattern.matcher(line);
+            Matcher m2 = MSUrlPattern.matcher(line);
+            if (m.matches() || m2.matches()) {
                 list.add(line);
             }
         }
