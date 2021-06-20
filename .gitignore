@@ -31,3 +31,5 @@ target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputF
 dist/pmn.bat
 dist/bin/pmn.exe
 /nbproject/
+target/classes/images/world_link.png
+dist/log.txt

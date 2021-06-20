@@ -744,7 +744,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 .filter(url -> !gotoLinks.contains(url))
                 .forEach(gotoLinks::add);
         gotoLinks.forEach(gotoLink -> {
-            JMenuItem jmi = new JMenuItem(gotoLink);
+            JMenuItem jmi = new JMenuItem(gotoLink, Main.createImageIcon("/images/world_link.png", ""));
             jmi.setFont(ourFont);
             
             jmi.addActionListener(al -> {
