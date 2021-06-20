@@ -238,6 +238,23 @@ public class Main {
         };
     }
 
+    class Switch {
+
+        boolean exp;
+
+        public Switch(boolean exp) {
+            this.exp = exp;
+        }
+
+        void toggle() {
+            exp = !exp;
+        }
+
+        boolean is() {
+            return exp;
+        }
+    }
+
     private ActionListener genReport() {
         char sep = '-';
         String separator = IntStream.range(0, separatorCharCount)
@@ -246,31 +263,45 @@ public class Main {
 
         return a -> {
             final StringBuilder b = new StringBuilder();
+            final StringBuilder html = new StringBuilder()
+                    .append("<html>");
             Calendar c = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd");
             b.append(sdf.format(c.getTime())).append("\n\n");
-
+            html.append("<h3>").append("Summary Copied in Clipboard").append("</h3><br/>");
+            final Switch first = new Switch(true);
             Consumer<Note> gen = note -> {
                 NoteUtility nUtil = NoteUtility.getInstance(note);
                 String paragraph = nUtil.getLastParagraph();
                 String[] lines = paragraph.split("\n");
+                if (!first.is()) {
+                    b.append(separator).append("\n");
+                    html.append("<hr/>");
+                } else {
+                    first.toggle();
+                }
                 b.append(note.getTitle()).append("\n");
+                html.append("<h4>").append(note.getTitle()).append("</h4>");
+                html.append("<ul>");
                 for (String line : lines) {
                     b.append("• ").append(line).append("\n");
+                    html.append("<li>").append(line).append("</li>");
                 }
-                b.append(separator).append("\n");
+                html.append("</ul>");
             };
 
             MANAGER.getSavedNotes()
                     .stream()
                     .filter(n -> summaryFilters.contains(n.getColorScheme().getLabel()))
                     .forEach(gen);
+            html.append("</html>");
 
             String data = b.toString();
+            String preview = html.toString();
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection selection = new StringSelection(data);
             cb.setContents(selection, null);
-            JOptionPane.showMessageDialog(null, data, "Report Copied in Clipboard", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, preview, "Summary: " + sdf.format(c.getTime()), JOptionPane.INFORMATION_MESSAGE);
 
         };
     }

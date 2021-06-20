@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -60,8 +61,8 @@ public class NoteUtility {
 //                + "nugget\n"
 //                + "-----------------\n"
 //                + "I have here a sample text";
-//        DefaultNoteInstance note = new DefaultNoteInstance(data);
+//        com.jon.postmenotes.DefaultNoteInstance note = new com.jon.postmenotes.DefaultNoteInstance(data);
 //        NoteUtility util = getInstance(note);
-//        System.out.println("last:{" + util.getLastParagraph() + "}");
+//        JOptionPane.showMessageDialog(null, "<html><p>"+util.getLastParagraph()+"</p><br/>test</html>");
 //    }
 }
