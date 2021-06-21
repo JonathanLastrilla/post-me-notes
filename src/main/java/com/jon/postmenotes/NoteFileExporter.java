@@ -62,11 +62,9 @@ public class NoteFileExporter extends NoteExporter {
         ow = overwrite;
         exportAllNotes(manager);
     }
-    
-    
 
     private void saveNoteToFile(Note note) {
-        String name = String.format("%s_%s.txt", note.getColorScheme().getLabel(), note.getTitle().split(" ")[0]);
+        String name = String.format("%s_%s.txt", note.getColorScheme().getLabel(), note.getTitle().split(" ")[0].strip());
         File destfile = new File(dest, name);
         if (!destfile.exists()) {
             w(destfile, note);

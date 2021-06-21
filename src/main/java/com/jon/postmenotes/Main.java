@@ -83,10 +83,14 @@ public class Main {
                 if (s.hasNext()) {
                     String detectedVersion = s.nextLine();
                     if (!currentVersion.equals(detectedVersion)) {
-                        JOptionPane.showMessageDialog(null, "Another version detected, backup d.data file first");
+                        StringBuilder versionUpdate = new StringBuilder();
+                        versionUpdate.append("<html>1. old version detected, go to preferences>others tab> then perform export.").append("<br/>");
+                        versionUpdate.append("2. delete v.ersion file under ").append(HOME_DIR.getAbsolutePath()).append(" and restart the app").append("<br/>");
+                        versionUpdate.append("3. after restartng, restore backup in the preferences>others tab> import, Notes will be available in the List").append("</html>");
+                        JOptionPane.showMessageDialog(null, versionUpdate, "Version " + currentVersion + " update", JOptionPane.INFORMATION_MESSAGE);
                         System.exit(1);
                     } else {
-                        LOG.info("Detected version: " + currentVersion);
+                        LOG.log(Level.INFO, "Detected version: {0}", currentVersion);
                     }
                 }
             } else {

@@ -26,7 +26,9 @@ package com.jon.postmenotes.core;
 import com.jon.postmenotes.DefaultNoteInstance;
 import com.jon.postmenotes.Main;
 import com.jon.postmenotes.PostMeNoteDialog;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,8 +36,10 @@ import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -67,7 +71,7 @@ public class NotesManager {
             LOG.log(Level.INFO, "loading notes {0}", read.size());
             notes.addAll(read);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, e, () -> e.getMessage());            
+            LOG.log(Level.SEVERE, e, () -> e.getMessage());
         }
     }
 
@@ -93,6 +97,23 @@ public class NotesManager {
 
     public List<Note> getSavedNotes() {
         return notes;
+    }
+
+    public void importFromFile(File dir) {
+        File[] textFiles = dir.listFiles((pathname) -> {
+            return pathname.getName().endsWith("txt");
+        });
+        for (File textFile : textFiles) {
+            try {
+                String content = new Scanner(textFile).useDelimiter("\\Z").next();
+                DefaultNoteInstance imported = new DefaultNoteInstance(content);
+                imported.setHidden(true);
+                imported.setSize(400, 350);
+                notes.add(imported);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(NotesManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     public void deleteForever(int id) {
