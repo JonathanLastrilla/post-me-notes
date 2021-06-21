@@ -525,6 +525,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private final Pattern p = Pattern.compile(reminderPattern);
     private final String TITLE_TEMPLATE = "%s - %s";
     private final Map<TrayIcon.MessageType, Consumer<String>> notifiers;
+    private final List<String> gotoLinks = new ArrayList<>();
     boolean isUpdating;
     private int posX;
     private int posY;
@@ -734,7 +735,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         reminderManager.initializeContext(model)
                 .scheduleUnexpiredNow(icon);
     }
-    List<String> gotoLinks = new ArrayList<>();
+    
     private void buildGoToLinks(){
         NoteUtility util = NoteUtility.getInstance(model);
         editorContext.removeAll();
