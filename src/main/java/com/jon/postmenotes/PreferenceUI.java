@@ -12,6 +12,7 @@ import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -92,7 +93,7 @@ public class PreferenceUI extends javax.swing.JFrame {
                 .map(ColorScheme::getLabel)
                 .toArray(String[]::new);
         DefaultComboBoxModel<String> labelsModel = new DefaultComboBoxModel<>(labels);
-        labelJL.setModel(labelsModel);
+        labelJCB.setModel(labelsModel);
 
         String summaryFilters = (String) pref.get(PreferenceEvent.SUMMARY_FILTER);
         if (summaryFilters != null) {
@@ -111,21 +112,26 @@ public class PreferenceUI extends javax.swing.JFrame {
 
             @Override
             public void intervalAdded(ListDataEvent arg0) {
-                System.out.println("add "+a.get());
+                System.out.println("add " + a.get());
                 preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
             }
 
             @Override
             public void intervalRemoved(ListDataEvent arg0) {
-                System.out.println("rem "+a.get());
+                System.out.println("rem " + a.get());
                 preferencePropertyPublisher.publish(PreferenceEvent.SUMMARY_FILTER, a.get());
             }
 
             @Override
             public void contentsChanged(ListDataEvent arg0) {
-                
+
             }
         });
+        if (pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT) != null) {
+            separatorCountJFTF.setValue((long) pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT));
+        }
+
+        labelJCB.actionPerformed(null);
     }
 
     /**
@@ -137,24 +143,32 @@ public class PreferenceUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        generalPanelJP = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         fontListJCB = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         fontSizeJFTF = new javax.swing.JFormattedTextField();
-        exportJB = new javax.swing.JButton();
-        exportersJCB = new javax.swing.JComboBox<>();
-        statusJL = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        separatorCountJFTF = new javax.swing.JFormattedTextField();
+        summaryPanelJP = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         summaryFilterJL = new javax.swing.JList<>();
         summaryFilterJL.setModel(summaryModel);
-        jLabel4 = new javax.swing.JLabel();
-        labelJL = new javax.swing.JComboBox<>();
         addFilterJB = new javax.swing.JButton();
+        labelJCB = new javax.swing.JComboBox<>();
         removeFilterJB = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         overwriteAllJCB = new javax.swing.JCheckBox();
+        exportersJCB = new javax.swing.JComboBox<>();
+        exportJB = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        importJB = new javax.swing.JButton();
+        statusJL = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Preferences");
 
         jLabel1.setText("Font");
 
@@ -174,22 +188,66 @@ public class PreferenceUI extends javax.swing.JFrame {
             }
         });
 
-        exportJB.setText("Export");
-        exportJB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exportJBActionPerformed(evt);
+        jLabel3.setText("Separator (-) count");
+
+        separatorCountJFTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        separatorCountJFTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                separatorCountJFTFPropertyChange(evt);
             }
         });
 
-        exportersJCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        javax.swing.GroupLayout generalPanelJPLayout = new javax.swing.GroupLayout(generalPanelJP);
+        generalPanelJP.setLayout(generalPanelJPLayout);
+        generalPanelJPLayout.setHorizontalGroup(
+            generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelJPLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(generalPanelJPLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fontListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(generalPanelJPLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(generalPanelJPLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(separatorCountJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(297, Short.MAX_VALUE))
+        );
+        generalPanelJPLayout.setVerticalGroup(
+            generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelJPLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(fontListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(generalPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(separatorCountJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(291, 291, 291))
+        );
 
-        statusJL.setText("jLabel3");
+        jTabbedPane1.addTab("General", generalPanelJP);
 
+        jLabel4.setText("Summary Filter");
+
+        summaryFilterJL.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         summaryFilterJL.setToolTipText("Labels of notes to be included in report");
+        summaryFilterJL.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                summaryFilterJLValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(summaryFilterJL);
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel4.setText("Summary");
 
         addFilterJB.setText("add");
         addFilterJB.addActionListener(new java.awt.event.ActionListener() {
@@ -198,90 +256,143 @@ public class PreferenceUI extends javax.swing.JFrame {
             }
         });
 
+        labelJCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                labelJCBActionPerformed(evt);
+            }
+        });
+
         removeFilterJB.setText("remove selected");
+        removeFilterJB.setEnabled(false);
         removeFilterJB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeFilterJBActionPerformed(evt);
             }
         });
 
-        overwriteAllJCB.setText("overwrite all");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout summaryPanelJPLayout = new javax.swing.GroupLayout(summaryPanelJP);
+        summaryPanelJP.setLayout(summaryPanelJPLayout);
+        summaryPanelJPLayout.setHorizontalGroup(
+            summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(summaryPanelJPLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(summaryPanelJPLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addFilterJB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelJL, 0, 162, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                        .addGroup(summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(summaryPanelJPLayout.createSequentialGroup()
+                                .addComponent(addFilterJB)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(labelJCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(removeFilterJB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(summaryPanelJPLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        summaryPanelJPLayout.setVerticalGroup(
+            summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(summaryPanelJPLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel4)
+                .addGap(22, 22, 22)
+                .addGroup(summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(summaryPanelJPLayout.createSequentialGroup()
+                        .addGroup(summaryPanelJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addFilterJB))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(removeFilterJB)))
+                .addContainerGap(177, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Summary", summaryPanelJP);
+
+        overwriteAllJCB.setText("overwrite all");
+
+        exportersJCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        exportJB.setText("Export");
+        exportJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportJBActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Export Note");
+
+        jLabel5.setText("Import From Backup");
+
+        importJB.setText("Import");
+        importJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importJBActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel5)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(exportJB)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(overwriteAllJCB))
-                            .addComponent(jLabel4)
-                            .addComponent(removeFilterJB))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                            .addComponent(importJB))))
+                .addContainerGap(135, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(fontListJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(fontSizeJFTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(removeFilterJB)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(labelJL, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(addFilterJB)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exportJB)
                     .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(overwriteAllJCB))
                 .addGap(18, 18, 18)
-                .addComponent(statusJL)
-                .addGap(10, 10, 10))
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(importJB)
+                .addContainerGap(192, Short.MAX_VALUE))
         );
+
+        jTabbedPane1.addTab("Others", jPanel2);
+
+        statusJL.setText(" ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(statusJL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jTabbedPane1))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(statusJL)
+                .addContainerGap())
         );
 
         pack();
@@ -296,7 +407,6 @@ public class PreferenceUI extends javax.swing.JFrame {
             try {
                 preferencePropertyPublisher.publish(PreferenceEvent.FONT_SIZE, Integer.parseInt(fontSizeJFTF.getText()));
             } catch (NumberFormatException e) {
-
             }
         }
     }//GEN-LAST:event_fontSizeJFTFPropertyChange
@@ -315,17 +425,47 @@ public class PreferenceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_exportJBActionPerformed
 
     private void addFilterJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFilterJBActionPerformed
-        String selected = labelJL.getSelectedItem().toString();
+        String selected = labelJCB.getSelectedItem().toString();
         boolean contains = summaryModel.contains(selected);
         if (!contains) {
             summaryModel.addElement(selected);
         }
+        addFilterJB.setEnabled(false);
     }//GEN-LAST:event_addFilterJBActionPerformed
 
     private void removeFilterJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeFilterJBActionPerformed
-       int tr = summaryFilterJL.getSelectedIndex();
-       summaryModel.removeElementAt(tr);
+        int tr = summaryFilterJL.getSelectedIndex();
+        summaryModel.removeElementAt(tr);
+        removeFilterJB.setEnabled(false);
     }//GEN-LAST:event_removeFilterJBActionPerformed
+
+    private void separatorCountJFTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_separatorCountJFTFPropertyChange
+        if (evt.getPropertyName().equals("value")) {
+            preferencePropertyPublisher.publish(PreferenceEvent.SEPARATOR_CHAR_COUNT, separatorCountJFTF.getValue());
+        }
+    }//GEN-LAST:event_separatorCountJFTFPropertyChange
+
+    private void labelJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelJCBActionPerformed
+        String selected = labelJCB.getSelectedItem().toString();
+        boolean contains = summaryModel.contains(selected);
+        addFilterJB.setEnabled(!contains);
+    }//GEN-LAST:event_labelJCBActionPerformed
+
+    private void summaryFilterJLValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_summaryFilterJLValueChanged
+        if (evt.getValueIsAdjusting() && !removeFilterJB.isEnabled()) {
+            removeFilterJB.setEnabled(true);
+        }
+    }//GEN-LAST:event_summaryFilterJLValueChanged
+
+    private void importJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importJBActionPerformed
+        NotesManager mgr = NotesManager.getInstance();
+        int before = mgr.getSavedNotes().size();
+        mgr.importFromFile(new File(Main.HOME_DIR, "export"));
+        int imported = mgr.getSavedNotes().size() - before;
+        if (imported > 0) {
+            publish("successfully restored " + imported + " notes.");
+        }
+    }//GEN-LAST:event_importJBActionPerformed
 
     private void publish(String message) {
         new Thread(() -> {
@@ -351,15 +491,23 @@ public class PreferenceUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> exportersJCB;
     private javax.swing.JComboBox<String> fontListJCB;
     private javax.swing.JFormattedTextField fontSizeJFTF;
+    private javax.swing.JPanel generalPanelJP;
+    private javax.swing.JButton importJB;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JComboBox<String> labelJL;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JComboBox<String> labelJCB;
     private javax.swing.JCheckBox overwriteAllJCB;
     private javax.swing.JButton removeFilterJB;
+    private javax.swing.JFormattedTextField separatorCountJFTF;
     private javax.swing.JLabel statusJL;
     private javax.swing.JList<String> summaryFilterJL;
+    private javax.swing.JPanel summaryPanelJP;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,14 +1,34 @@
 /*
- * 
- * 
- * 
+ * The MIT License
+ *
+ * Copyright 2021 bogarts.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.jon.postmenotes.core;
 
 import com.jon.postmenotes.DefaultNoteInstance;
 import com.jon.postmenotes.Main;
 import com.jon.postmenotes.PostMeNoteDialog;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,6 +36,7 @@ import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +70,7 @@ public class NotesManager {
             LOG.log(Level.INFO, "loading notes {0}", read.size());
             notes.addAll(read);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, e, () -> e.getMessage());            
+            LOG.log(Level.SEVERE, e, () -> e.getMessage());
         }
     }
 
@@ -77,8 +98,20 @@ public class NotesManager {
         return notes;
     }
 
-    public void deleteForever(int id) {
-        throw new UnsupportedOperationException("not supported delete");
+    public void importFromFile(File dir) {
+        File[] textFiles = dir.listFiles((pathname) -> {
+            return pathname.getName().endsWith("txt");
+        });
+        for (File textFile : textFiles) {
+            try {
+                String content = new Scanner(textFile).useDelimiter("\\Z").next();
+                DefaultNoteInstance imported = new DefaultNoteInstance(content);
+                imported.setHidden(true);
+                imported.setSize(400, 350);
+                notes.add(imported);
+            } catch (FileNotFoundException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
     }
-
 }

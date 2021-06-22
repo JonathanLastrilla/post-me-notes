@@ -8,30 +8,48 @@ package com.jon.postmenotes;
 import com.jon.postmenotes.core.ColorScheme;
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.NoteUtility;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
+import com.jon.postmenotes.core.ReminderManager;
 import com.jon.postmenotes.core.labeltasks.LabelTask;
 import com.jon.postmenotes.core.labeltasks.LabelTaskManager;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.ScrollPaneConstants;
@@ -48,8 +66,6 @@ import javax.swing.text.BadLocationException;
  */
 public class PostMeNoteDialog extends javax.swing.JDialog {
 
-    
-
     /**
      * Creates new form PostMeNoteDialog
      *
@@ -61,6 +77,13 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         this.model = model;
         initComponents2();
         preference.addListener(prefListener);
+    }
+
+    private PostMeNoteDialog(PostMeNoteDialog another) {
+        super();
+        initComponents();
+        this.model = another.getModel();
+        initComponents2();
     }
 
     /**
@@ -90,10 +113,12 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         addSeparatorJB = new javax.swing.JButton();
         tsJCB = new javax.swing.JCheckBox();
         jSeparator2 = new javax.swing.JToolBar.Separator();
+        addReminder = new javax.swing.JButton();
         colorListJCB = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconImage(null);
+        setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
@@ -158,7 +183,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.setRollover(true);
         jToolBar1.setOpaque(false);
 
-        newNoteJB.setText("+");
+        newNoteJB.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/add_16x16.gif"))); // NOI18N
         newNoteJB.setToolTipText("new");
         newNoteJB.setFocusable(false);
         newNoteJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -171,7 +196,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(newNoteJB);
 
-        deleteJB.setText(" - ");
+        deleteJB.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete_16x16.gif"))); // NOI18N
         deleteJB.setToolTipText("delete permanently");
         deleteJB.setFocusable(false);
         deleteJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -184,7 +209,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.add(deleteJB);
         jToolBar1.add(jSeparator1);
 
-        lockedJCB.setText("edit");
         lockedJCB.setToolTipText("edit, unchecking enables 'copy on select'");
         lockedJCB.setFocusable(false);
         lockedJCB.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -198,7 +222,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.add(lockedJCB);
         jToolBar1.add(jSeparator3);
 
-        addSeparatorJB.setText("(---)");
+        addSeparatorJB.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/comment2_(add)_16x16.gif"))); // NOI18N
         addSeparatorJB.setToolTipText("add separator");
         addSeparatorJB.setFocusable(false);
         addSeparatorJB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -210,7 +234,6 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         });
         jToolBar1.add(addSeparatorJB);
 
-        tsJCB.setText("timestamp");
         tsJCB.setToolTipText("add timestamp when inserting separator");
         tsJCB.setFocusable(false);
         tsJCB.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
@@ -223,7 +246,20 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jToolBar1.add(tsJCB);
         jToolBar1.add(jSeparator2);
 
+        addReminder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/comment1_(add)_16x16.gif"))); // NOI18N
+        addReminder.setToolTipText("add reminder");
+        addReminder.setFocusable(false);
+        addReminder.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addReminder.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addReminder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addReminderActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(addReminder);
+
         colorListJCB.setToolTipText("sticky color");
+        colorListJCB.setBorder(null);
         colorListJCB.setOpaque(false);
         colorListJCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -283,6 +319,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         jEditorPane1.setText(model.getText());
         jEditorPane1.getDocument().addDocumentListener(editorListener());
         lockedJCB.setSelected(model.isLocked());
+        lockedJCB.setIcon(Main.createImageIcon(!model.isLocked() ? "/images/lock_16x16.gif": "/images/unlock_16x16.gif", ""));
 
         DefaultComboBoxModel colorList = new DefaultComboBoxModel(
                 ColorScheme.SCHEMES.stream().toArray()
@@ -293,7 +330,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
             updateColr(model.getColorScheme());
             colorList.setSelectedItem(model.getColorScheme());
         }
-        colorListJCB.setRenderer(schemesRenderer());       
+        colorListJCB.setRenderer(schemesRenderer());
         setTitle(String.format(TITLE_TEMPLATE, model.getColorScheme().getLabel(), model.getTitle()));
         addSeparatorJB.setEnabled(model.isLocked());
         tsJCB.setEnabled(model.isLocked());
@@ -335,6 +372,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         deleteJB.setEnabled(!b);
         addSeparatorJB.setEnabled(b);
         tsJCB.setEnabled(b);
+        lockedJCB.setIcon(Main.createImageIcon(!b ? "/images/lock_16x16.gif": "/images/unlock_16x16.gif", ""));
     }//GEN-LAST:event_lockedJCBActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
@@ -389,7 +427,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void formWindowLostFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowLostFocus
-        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);        
+        jScrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
     }//GEN-LAST:event_formWindowLostFocus
 
     private void deleteJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteJBActionPerformed
@@ -410,20 +448,60 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        SwingUtilities.invokeLater(() -> {           
+        SwingUtilities.invokeLater(() -> {
             preference.requestUpdate(prefListener);
             JScrollBar scb = jScrollPane2.getVerticalScrollBar();
             scb.setValue(scb.getMaximum());
+            initMyReminders();
+            buildGoToLinks();
         });
     }//GEN-LAST:event_formWindowOpened
 
+    private void tsJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tsJCBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tsJCBActionPerformed
+
+    private void addReminderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addReminderActionPerformed
+        String message = JOptionPane.showInputDialog(this, "Format:<hh:mm> <minutes_before> <message>", "New Reminder", JOptionPane.QUESTION_MESSAGE);
+        if (message == null || message.isBlank()) {
+            publish("reminder not added.");
+            return;
+        }
+        Matcher m = p.matcher(message);
+        if (m.find()) {
+            try {
+                String time = m.group(1);
+                int notifyBefore = -Integer.parseInt(m.group(2));
+                String messageString = m.group(3);
+                LocalDateTime now = LocalDateTime.now();
+                String inString = now.toString();
+                String newDateString = String.format("%sT%s", inString.split("T")[0], time);
+                LocalDateTime when = LocalDateTime.parse(newDateString);
+                System.out.println(when);
+                reminderManager.initializeContext(model)
+                        .newReminderInContext(messageString, ChronoUnit.MINUTES.addTo(when, notifyBefore))
+                        .scheduleReminderInContextNow(icon);
+                publish("reminder scheduled for " + when);
+            } catch (DateTimeParseException e) {
+                publish("SYSTEM: " + e.getMessage());
+            }
+
+        } else {
+            publish("reminder not added, wrong format");
+        }
+    }//GEN-LAST:event_addReminderActionPerformed
+
     private void addSeparatorJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSeparatorJBActionPerformed
-        try {            
+        try {
+            char sep = '-';
+            String separator = IntStream.range(0, separatorCharCount)
+            .mapToObj((i) -> Character.toString(sep))
+            .collect(Collectors.joining());
             jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
-                    "\n-------------------\n", null);
-            if(tsJCB.isSelected()){
+                "\n"+separator+"\n", null);
+            if (tsJCB.isSelected()) {
                 jEditorPane1.getDocument().insertString(jEditorPane1.getDocument().getLength(),
-                    sdf.format(new Date())+"\n", null);
+                    sdf.format(new Date()) + "\n", null);
             }
             jEditorPane1.setCaretPosition(jEditorPane1.getDocument().getLength());
         } catch (BadLocationException ex) {
@@ -431,9 +509,50 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_addSeparatorJBActionPerformed
 
-    private void tsJCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tsJCBActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tsJCBActionPerformed
+    /*instance initializers*/
+    {
+        isUpdating = false;
+        flaggedForDeletion = false;
+        notifiers = new HashMap<>();
+    }
+
+    private final PreferenceListener prefListener = listener();
+    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
+    private final Preference preference = Preference.getInstance();
+    private final SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
+    private final ReminderManager reminderManager = ReminderManager.getInstance();
+    private final String reminderPattern = "^([0-9]{1,2}:[0-9]{1,2}) ([0-9]{1,2})(.*)";
+    private final Pattern p = Pattern.compile(reminderPattern);
+    private final String TITLE_TEMPLATE = "%s - %s";
+    private final Map<TrayIcon.MessageType, Consumer<String>> notifiers;
+    private final List<String> gotoLinks = new ArrayList<>();
+    boolean isUpdating;
+    private int posX;
+    private int posY;
+    private final Note model;
+    private boolean flaggedForDeletion;
+    private TrayIcon icon;
+    private Font ourFont;
+    private int ourFontSize;
+    private int separatorCharCount = 17;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addReminder;
+    private javax.swing.JButton addSeparatorJB;
+    private javax.swing.JComboBox<String> colorListJCB;
+    private javax.swing.JButton deleteJB;
+    private javax.swing.JPopupMenu editorContext;
+    private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
+    private javax.swing.JToolBar.Separator jSeparator3;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JCheckBox lockedJCB;
+    private javax.swing.JButton newNoteJB;
+    private javax.swing.JLabel statusJL;
+    private javax.swing.JCheckBox tsJCB;
+    // End of variables declaration//GEN-END:variables
 
     boolean ctrl;
 
@@ -465,8 +584,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                     Thread.sleep(3000);
                     model.setText(jEditorPane1.getText());
                     isUpdating = false;
-                    new Thread(() -> {                        
+                    new Thread(() -> {
                         statusJL.setText("saved.");
+                        buildGoToLinks();
                         try {
                             Thread.sleep(2000);
                             statusJL.setText("");
@@ -498,8 +618,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 statusJL,
                 addSeparatorJB,
                 tsJCB,
-                lockedJCB
-                )
+                lockedJCB,
+                addReminder
+        )
                 .stream()
                 .forEach(fgSetter);
 
@@ -513,8 +634,9 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 statusJL,
                 addSeparatorJB,
                 tsJCB,
-                lockedJCB
-                )
+                lockedJCB,
+                addReminder
+        )
                 .stream()
                 .forEach(bgSetter);
         UIManager.put("TextField.caretForeground", new ColorUIResource(scheme.getFg()));
@@ -544,72 +666,102 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
                 Logger.getLogger(PostMeNoteDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
         }).start();
-    }    
-    
-    private PreferenceListener listener(){
+    }
+
+    private PreferenceListener listener() {
         return new PreferenceListener() {
             @Override
             public void apply(PreferenceEvent property, Object value) {
-                switch(property){
-                    case FONT:{
-                        Font f = (Font) value;                        
-                        jEditorPane1.setFont(new Font(f.getName(), 0, 16));
+                switch (property) {
+                    case FONT: {
+                        Font f = (Font) value;
+                        Font toUse = new Font(f.getName(), 0, 16);
+                        jEditorPane1.setFont(toUse);
                         break;
                     }
-                    case FONT_SIZE:{                        
+                    case FONT_SIZE: {
                         Font f = jEditorPane1.getFont();
-                        jEditorPane1.setFont(new Font(f.getName(), 0, (Integer)value));
+                        jEditorPane1.setFont(new Font(f.getName(), 0, (Integer) value));
                         break;
                     }
-                    default :{
-                        LOG.log(Level.FINE,property.name());
+                    case SEPARATOR_CHAR_COUNT: {
+                        separatorCharCount = ((Long)value).intValue();
+                        break;
+                    }
+                    default: {
+                        LOG.log(Level.FINE, property.name());
                     }
                 }
             }
 
             @Override
             public List<PreferenceEvent> subscribedEvents() {
-                return Arrays.asList(PreferenceEvent.FONT, PreferenceEvent.FONT_SIZE);
+                return Arrays.asList(
+                        PreferenceEvent.FONT, 
+                        PreferenceEvent.FONT_SIZE, 
+                        PreferenceEvent.SEPARATOR_CHAR_COUNT);
             }
         };
     }
-    
+
     @LabelTask(label = "NOTE")
-    public void disableEdit(){
-        if(lockedJCB.isSelected()){
+    public void disableEdit() {
+        if (lockedJCB.isSelected()) {
             lockedJCB.doClick();
         }
     }
 
-    boolean isUpdating = false;
-    private int posX;
-    private int posY;
-    private final Note model;
-    private final PreferenceListener prefListener = listener();
-    private String TITLE_TEMPLATE = "%s - %s";
-    private boolean flaggedForDeletion = false;
-    private final Logger LOG = Logger.getLogger(PostMeNoteDialog.class.getName());
-    private Preference preference = Preference.getInstance();
-    private SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy hh:mm:ss");
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addSeparatorJB;
-    private javax.swing.JComboBox<String> colorListJCB;
-    private javax.swing.JButton deleteJB;
-    private javax.swing.JPopupMenu editorContext;
-    private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JToolBar.Separator jSeparator1;
-    private javax.swing.JToolBar.Separator jSeparator2;
-    private javax.swing.JToolBar.Separator jSeparator3;
-    private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JCheckBox lockedJCB;
-    private javax.swing.JButton newNoteJB;
-    private javax.swing.JLabel statusJL;
-    private javax.swing.JCheckBox tsJCB;
-    // End of variables declaration//GEN-END:variables
-
     public Note getModel() {
         return model;
     }
+
+    public void addTrayIconNotifier(TrayIcon.MessageType type, Consumer<String> consumer) {
+        notifiers.put(type, consumer);
+    }
+
+    private void notifyDefault(String message) {
+        if (notifiers.containsKey(TrayIcon.MessageType.INFO)) {
+            notifiers.get(TrayIcon.MessageType.INFO).accept(message);
+        } else {
+            LOG.severe("missing system tray notifier for INFO");
+        }
+    }
+
+    public void setTrayIcon(TrayIcon icon) {
+        this.icon = icon;
+    }
+
+    private void initMyReminders() {
+        reminderManager.initializeContext(model)
+                .scheduleUnexpiredNow(icon);
+    }
+    
+    private void buildGoToLinks(){
+        NoteUtility util = NoteUtility.getInstance(model);
+        editorContext.removeAll();
+        gotoLinks.clear();
+        util.getUrls()
+                .stream()
+                .map(String::strip)
+                .filter(url -> !gotoLinks.contains(url))
+                .forEach(gotoLinks::add);
+        gotoLinks.forEach(gotoLink -> {
+            String[] splitted = gotoLink.split(" ");
+            JMenuItem jmi = new JMenuItem(splitted.length > 1 ? splitted[1]: gotoLink, Main.createImageIcon("/images/world_link.png", ""));
+            jmi.setFont(ourFont);
+            
+            jmi.addActionListener(al -> {
+                if(Desktop.isDesktopSupported()){
+                    Desktop d = Desktop.getDesktop();
+                    try {
+                        d.browse(new URI(splitted.length > 1 ? splitted[0]: gotoLink));
+                    } catch (URISyntaxException | IOException ex) {
+                        LOG.log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            editorContext.add(jmi);
+        });
+    }
+
 }

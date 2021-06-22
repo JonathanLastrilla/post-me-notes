@@ -7,9 +7,11 @@ package com.jon.postmenotes;
 
 import com.jon.postmenotes.core.NotesManager;
 import com.jon.postmenotes.core.Note;
+import com.jon.postmenotes.core.NoteUtility;
 import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import com.jon.postmenotes.core.PreferenceListener;
+import com.jon.postmenotes.core.ReminderManager;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -32,11 +34,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -62,8 +64,9 @@ public class Main {
     private Set<String> summaryFilters = new HashSet<>();
     private PreferenceListener appListener = settingsListener();
     private final static Properties properties = new Properties();
-
-    Note dummy;
+    private TrayIcon icon;
+    private JFrame prefUI;
+    private int separatorCharCount = 17;
 
     static {
         try {
@@ -80,10 +83,14 @@ public class Main {
                 if (s.hasNext()) {
                     String detectedVersion = s.nextLine();
                     if (!currentVersion.equals(detectedVersion)) {
-                        JOptionPane.showMessageDialog(null, "Another version detected, backup d.data file first");
+                        StringBuilder versionUpdate = new StringBuilder();
+                        versionUpdate.append("<html>1. old version detected, go to preferences>others tab> then perform export.").append("<br/>");
+                        versionUpdate.append("2. delete v.ersion file under ").append(HOME_DIR.getAbsolutePath()).append(" and restart the app").append("<br/>");
+                        versionUpdate.append("3. after restartng, restore backup in the preferences>others tab> import, Notes will be available in the List").append("</html>");
+                        JOptionPane.showMessageDialog(null, versionUpdate, "Version " + currentVersion + " update", JOptionPane.INFORMATION_MESSAGE);
                         System.exit(1);
                     } else {
-                        LOG.info("Detected version: " + currentVersion);
+                        LOG.log(Level.INFO, "Detected version: {0}", currentVersion);
                     }
                 }
             } else {
@@ -133,7 +140,7 @@ public class Main {
                 popUp.addSeparator();
                 popUp.add(exit());
 
-                TrayIcon icon = new TrayIcon(
+                icon = new TrayIcon(
                         createImageIcon(ICON_NAME, "")
                                 .getImage()
                                 .getScaledInstance(tray.getTrayIconSize().height,
@@ -143,7 +150,6 @@ public class Main {
                         popUp);
 
                 tray.add(icon);
-
             } catch (AWTException ex) {
                 LOG.log(Level.SEVERE, null, ex);
                 System.exit(1);
@@ -211,6 +217,8 @@ public class Main {
                 .filter(n -> !n.isHidden())
                 .map(PostMeNoteDialog::new)
                 .forEach(dialog -> {
+                    dialog.setTrayIcon(icon);
+                    dialog.addTrayIconNotifier(TrayIcon.MessageType.INFO, s -> icon.displayMessage(dialog.getModel().getTitle(), s, TrayIcon.MessageType.INFO));
                     EventQueue.invokeLater(() -> {
                         dialog.setSizeExternal();
                         dialog.setVisible(true);
@@ -220,69 +228,94 @@ public class Main {
 
     private ActionListener showPref() {
         return a -> {
-            final JFrame prefUI = new PreferenceUI();
-            prefUI.pack();
-            prefUI.setLocationRelativeTo(null);
+            if (prefUI == null) {
+                prefUI = new PreferenceUI();
+                prefUI.pack();
+                prefUI.setLocationRelativeTo(null);
+            }
             EventQueue.invokeLater(() -> {
                 prefUI.setVisible(true);
             });
+
         };
     }
 
+    class Switch {
+
+        boolean exp;
+
+        public Switch(boolean exp) {
+            this.exp = exp;
+        }
+
+        void toggle() {
+            exp = !exp;
+        }
+
+        boolean is() {
+            return exp;
+        }
+    }
+
     private ActionListener genReport() {
+        char sep = '-';
+        String separator = IntStream.range(0, separatorCharCount)
+                .mapToObj((i) -> Character.toString(sep))
+                .collect(Collectors.joining());
+
         return a -> {
             final StringBuilder b = new StringBuilder();
+            final StringBuilder html = new StringBuilder()
+                    .append("<html>");
             Calendar c = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd");
-            b.append(sdf.format(c.getTime())).append("\n");
-
-            final Pattern pattern = Pattern.compile("^-+");
-
+            b.append(sdf.format(c.getTime())).append("\n\n");
+            html.append("<h3>").append("Summary Copied in Clipboard").append("</h3><br/>");
+            final Switch first = new Switch(true);
             Consumer<Note> gen = note -> {
-                Stack<String> stack = new Stack<>();
-                for (String string : note.getText().split("\n")) {
-                    stack.push(string);
+                NoteUtility nUtil = NoteUtility.getInstance(note);
+                String paragraph = nUtil.getLastParagraph();
+                String[] lines = paragraph.split("\n");
+                if (!first.is()) {
+                    b.append(separator).append("\n");
+                    html.append("<hr/>");
+                } else {
+                    first.toggle();
                 }
-                b.append("-------------------")
-                        .append("\n")
-                        .append(note.getTitle())
-                        .append("\n");
-                final StringBuilder sub = new StringBuilder();
-                while (!stack.isEmpty()) {
-                    String top = stack.pop();
-                    boolean terminate = pattern.matcher(top).find();
-                    if (!terminate) {
-                        sub.insert(0, "• " + top + "\n");
-                    } else {
-                        break;
-                    }
+                b.append(note.getTitle()).append("\n");
+                html.append("<h4>").append(note.getTitle()).append("</h4>");
+                html.append("<ul>");
+                for (String line : lines) {
+                    b.append("• ").append(line).append("\n");
+                    html.append("<li>").append(line).append("</li>");
                 }
-                b
-                        .append(sub.toString())
-                        .append("\n");
-
+                html.append("</ul>");
             };
 
             MANAGER.getSavedNotes()
                     .stream()
                     .filter(n -> summaryFilters.contains(n.getColorScheme().getLabel()))
                     .forEach(gen);
+            html.append("</html>");
 
             String data = b.toString();
+            String preview = html.toString();
             Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection selection = new StringSelection(data);
             cb.setContents(selection, null);
-            JOptionPane.showMessageDialog(null, data, "Report Copied in Clipboard", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, preview, "Summary: " + sdf.format(c.getTime()), JOptionPane.INFORMATION_MESSAGE);
 
         };
     }
 
     public Thread shutdownHook() {
         return new Thread(() -> {
-            Preference.getInstance().serialize();
             LOG.log(Level.INFO, "saving preferences..");
-            NotesManager.serialize();
+            Preference.getInstance().serialize();
             LOG.log(Level.INFO, "saving data..{0}", MANAGER.getSavedNotes().size());
+            NotesManager.serialize();
+            LOG.log(Level.INFO, "saving reminders..{0}", ReminderManager.getSavedNotifications());
+            ReminderManager.serialize();
         });
     }
 
@@ -290,15 +323,30 @@ public class Main {
         return new PreferenceListener() {
             @Override
             public void apply(PreferenceEvent property, Object value) {
-                summaryFilters.clear();
-                summaryFilters.addAll(Arrays.asList(value.toString().split(",")));
+                switch (property) {
+                    case SUMMARY_FILTER:
+                        summaryFilters.clear();
+                        summaryFilters.addAll(Arrays.asList(value.toString().split(",")));
+                        break;
+                    case SEPARATOR_CHAR_COUNT: {
+                        separatorCharCount = ((Long) value).intValue();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
             }
 
             @Override
             public List<PreferenceEvent> subscribedEvents() {
-                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER);
+                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER, PreferenceEvent.SEPARATOR_CHAR_COUNT);
             }
         };
+    }
+
+    protected void startNotificationService() {
+
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -314,6 +362,7 @@ public class Main {
         }
 
         Main app = new Main();
+        app.startNotificationService();
         app.restoreSavedNotes();
         Runtime.getRuntime().addShutdownHook(app.shutdownHook());
     }

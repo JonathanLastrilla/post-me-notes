@@ -14,6 +14,9 @@
     <Property name="iconImage" type="java.awt.Image" editor="org.netbeans.modules.form.ComponentChooserEditor">
       <ComponentRef name="null"/>
     </Property>
+    <Property name="modalExclusionType" type="java.awt.Dialog$ModalExclusionType" editor="org.netbeans.modules.form.editors.EnumEditor">
+      <Value id="APPLICATION_EXCLUDE"/>
+    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -146,7 +149,9 @@
           <SubComponents>
             <Component class="javax.swing.JButton" name="newNoteJB">
               <Properties>
-                <Property name="text" type="java.lang.String" value="+"/>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/images/add_16x16.gif"/>
+                </Property>
                 <Property name="toolTipText" type="java.lang.String" value="new"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -159,7 +164,9 @@
             </Component>
             <Component class="javax.swing.JButton" name="deleteJB">
               <Properties>
-                <Property name="text" type="java.lang.String" value=" - "/>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/images/delete_16x16.gif"/>
+                </Property>
                 <Property name="toolTipText" type="java.lang.String" value="delete permanently"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -173,7 +180,6 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="lockedJCB">
               <Properties>
-                <Property name="text" type="java.lang.String" value="edit"/>
                 <Property name="toolTipText" type="java.lang.String" value="edit, unchecking enables &apos;copy on select&apos;"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalAlignment" type="int" value="4"/>
@@ -188,7 +194,9 @@
             </Component>
             <Component class="javax.swing.JButton" name="addSeparatorJB">
               <Properties>
-                <Property name="text" type="java.lang.String" value="(---)"/>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/images/comment2_(add)_16x16.gif"/>
+                </Property>
                 <Property name="toolTipText" type="java.lang.String" value="add separator"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -200,7 +208,6 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="tsJCB">
               <Properties>
-                <Property name="text" type="java.lang.String" value="timestamp"/>
                 <Property name="toolTipText" type="java.lang.String" value="add timestamp when inserting separator"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="4"/>
@@ -212,6 +219,20 @@
             </Component>
             <Component class="javax.swing.JToolBar$Separator" name="jSeparator2">
             </Component>
+            <Component class="javax.swing.JButton" name="addReminder">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/images/comment1_(add)_16x16.gif"/>
+                </Property>
+                <Property name="toolTipText" type="java.lang.String" value="add reminder"/>
+                <Property name="focusable" type="boolean" value="false"/>
+                <Property name="horizontalTextPosition" type="int" value="0"/>
+                <Property name="verticalTextPosition" type="int" value="3"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addReminderActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.JComboBox" name="colorListJCB">
@@ -220,6 +241,9 @@
               <StringArray count="0"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="sticky color"/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="null"/>
+            </Property>
             <Property name="opaque" type="boolean" value="false"/>
           </Properties>
           <Events>
