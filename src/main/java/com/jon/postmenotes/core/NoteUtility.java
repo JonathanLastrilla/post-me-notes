@@ -30,7 +30,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.swing.text.ParagraphView;
 
 /**
  *
@@ -45,7 +44,8 @@ public class NoteUtility {
     private final Note model;
     final Pattern pattern = Pattern.compile("^[-]+$");
     private final Pattern MSUrlPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*(:(0-9)*)*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\\\+&amp;%\\$#_]*)?$");
-    private final Pattern ORAPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/([\\.\\w-]+\\/)+([\\w\\.])*([\\?])*(\\w+=\\w*&*)*$");
+    private final Pattern ORAPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/([\\.\\w\\~-]+\\/)+([\\w+]\\.*)*([\\?])*(\\w+=\\w*&*)*$");
+    private final Pattern allGoesAfterHttpsPattern = Pattern.compile("^(ht|f)tp(s?)\\:\\/\\/.*");
     private NoteUtility(Note model) {
         this.model = model;
     }
@@ -64,7 +64,8 @@ public class NoteUtility {
         for (String line : model.getText().split("[\r]*\n")) {
             Matcher m = ORAPattern.matcher(line);
             Matcher m2 = MSUrlPattern.matcher(line);
-            if (m.matches() || m2.matches()) {
+            Matcher m3 = allGoesAfterHttpsPattern.matcher(line);
+            if (m.matches() || m2.matches() || m3.matches()) {                
                 list.add(line);
             }
         }

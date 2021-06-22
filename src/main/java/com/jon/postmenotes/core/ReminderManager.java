@@ -23,12 +23,6 @@
  */
 package com.jon.postmenotes.core;
 
-import com.jon.postmenotes.DefaultNoteInstance;
-import static com.jon.postmenotes.Main.ICON_NAME;
-import static com.jon.postmenotes.Main.createImageIcon;
-import java.awt.AWTException;
-import java.awt.Image;
-import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionListener;
 import java.io.File;

@@ -525,6 +525,7 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
     private final Pattern p = Pattern.compile(reminderPattern);
     private final String TITLE_TEMPLATE = "%s - %s";
     private final Map<TrayIcon.MessageType, Consumer<String>> notifiers;
+    private final List<String> gotoLinks = new ArrayList<>();
     boolean isUpdating;
     private int posX;
     private int posY;
@@ -734,24 +735,26 @@ public class PostMeNoteDialog extends javax.swing.JDialog {
         reminderManager.initializeContext(model)
                 .scheduleUnexpiredNow(icon);
     }
-    List<String> gotoLinks = new ArrayList<>();
+    
     private void buildGoToLinks(){
         NoteUtility util = NoteUtility.getInstance(model);
         editorContext.removeAll();
+        gotoLinks.clear();
         util.getUrls()
                 .stream()
                 .map(String::strip)
                 .filter(url -> !gotoLinks.contains(url))
                 .forEach(gotoLinks::add);
         gotoLinks.forEach(gotoLink -> {
-            JMenuItem jmi = new JMenuItem(gotoLink, Main.createImageIcon("/images/world_link.png", ""));
+            String[] splitted = gotoLink.split(" ");
+            JMenuItem jmi = new JMenuItem(splitted.length > 1 ? splitted[1]: gotoLink, Main.createImageIcon("/images/world_link.png", ""));
             jmi.setFont(ourFont);
             
             jmi.addActionListener(al -> {
                 if(Desktop.isDesktopSupported()){
                     Desktop d = Desktop.getDesktop();
                     try {
-                        d.browse(new URI(gotoLink));
+                        d.browse(new URI(splitted.length > 1 ? splitted[0]: gotoLink));
                     } catch (URISyntaxException | IOException ex) {
                         LOG.log(Level.SEVERE, null, ex);
                     }

@@ -12,6 +12,7 @@ import com.jon.postmenotes.core.Preference;
 import com.jon.postmenotes.core.PreferenceEvent;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -126,10 +127,10 @@ public class PreferenceUI extends javax.swing.JFrame {
 
             }
         });
-        if(pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT) !=null ){
+        if (pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT) != null) {
             separatorCountJFTF.setValue((long) pref.get(PreferenceEvent.SEPARATOR_CHAR_COUNT));
         }
-        
+
         labelJCB.actionPerformed(null);
     }
 
@@ -163,6 +164,8 @@ public class PreferenceUI extends javax.swing.JFrame {
         exportersJCB = new javax.swing.JComboBox<>();
         exportJB = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        importJB = new javax.swing.JButton();
         statusJL = new javax.swing.JLabel();
 
         setTitle("Preferences");
@@ -311,7 +314,7 @@ public class PreferenceUI extends javax.swing.JFrame {
 
         exportersJCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        exportJB.setText("Start");
+        exportJB.setText("Export");
         exportJB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportJBActionPerformed(evt);
@@ -320,6 +323,15 @@ public class PreferenceUI extends javax.swing.JFrame {
 
         jLabel6.setText("Export Note");
 
+        jLabel5.setText("Import From Backup");
+
+        importJB.setText("Import");
+        importJB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importJBActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -327,26 +339,35 @@ public class PreferenceUI extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel5)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(exportJB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(overwriteAllJCB))
-                    .addComponent(jLabel6))
-                .addContainerGap(153, Short.MAX_VALUE))
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(exportJB)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(overwriteAllJCB))
+                            .addComponent(importJB))))
+                .addContainerGap(135, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel6)
-                .addGap(26, 26, 26)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exportJB)
                     .addComponent(exportersJCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(overwriteAllJCB))
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(importJB)
+                .addContainerGap(192, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Others", jPanel2);
@@ -431,10 +452,20 @@ public class PreferenceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_labelJCBActionPerformed
 
     private void summaryFilterJLValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_summaryFilterJLValueChanged
-        if(evt.getValueIsAdjusting() && !removeFilterJB.isEnabled()){
+        if (evt.getValueIsAdjusting() && !removeFilterJB.isEnabled()) {
             removeFilterJB.setEnabled(true);
         }
     }//GEN-LAST:event_summaryFilterJLValueChanged
+
+    private void importJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importJBActionPerformed
+        NotesManager mgr = NotesManager.getInstance();
+        int before = mgr.getSavedNotes().size();
+        mgr.importFromFile(new File(Main.HOME_DIR, "export"));
+        int imported = mgr.getSavedNotes().size() - before;
+        if (imported > 0) {
+            publish("successfully restored " + imported + " notes.");
+        }
+    }//GEN-LAST:event_importJBActionPerformed
 
     private void publish(String message) {
         new Thread(() -> {
@@ -461,10 +492,12 @@ public class PreferenceUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> fontListJCB;
     private javax.swing.JFormattedTextField fontSizeJFTF;
     private javax.swing.JPanel generalPanelJP;
+    private javax.swing.JButton importJB;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
