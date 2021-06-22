@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -111,13 +110,8 @@ public class NotesManager {
                 imported.setSize(400, 350);
                 notes.add(imported);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(NotesManager.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, null, ex);
             }
         }
     }
-
-    public void deleteForever(int id) {
-        throw new UnsupportedOperationException("not supported delete");
-    }
-
 }
