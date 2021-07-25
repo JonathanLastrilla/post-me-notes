@@ -133,6 +133,7 @@ public class Main {
                 PopupMenu popUp = new PopupMenu("test");
 
                 popUp.add(newNote());
+                popUp.add(saveNow());
                 popUp.add(generateReport());
                 popUp.addSeparator();
                 popUp.add(showNotesList());
@@ -237,6 +238,19 @@ public class Main {
                 prefUI.setVisible(true);
             });
 
+        };
+    }
+
+    private MenuItem saveNow() {
+        MenuItem saveNow = createItem("Save");
+        saveNow.addActionListener(saveNowAction());
+        return saveNow;
+    }
+
+    private ActionListener saveNowAction() {
+        return e -> {
+            shutdownHook().run();
+            JOptionPane.showMessageDialog(null, "Saved.");
         };
     }
 
