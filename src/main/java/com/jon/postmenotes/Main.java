@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -379,6 +383,8 @@ public class Main {
         app.startNotificationService();
         app.restoreSavedNotes();
         Runtime.getRuntime().addShutdownHook(app.shutdownHook());
+        ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
+        scheduled.scheduleAtFixedRate(app.shutdownHook(), 1, 60, TimeUnit.MINUTES);        
     }
 
 }
