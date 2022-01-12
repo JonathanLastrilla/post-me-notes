@@ -29,6 +29,7 @@ import com.jon.postmenotes.core.NotesManager;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -42,6 +43,15 @@ public class NoteFileExporter extends NoteExporter {
     private final static Logger LOG = Logger.getLogger(NoteFileExporter.class.getName());
     private File dest = new File(Main.HOME_DIR, "export");
     private boolean ow = false;
+    
+    {
+        dest = new File(Main.HOME_DIR+File.separator+"backup",new Date().toString()
+                .split(" ")[0]
+                .replace(':', '_'));
+        if(dest.exists()){
+            dest.mkdirs();
+        }
+    }
 
     public NoteFileExporter() {
         super("File Export");

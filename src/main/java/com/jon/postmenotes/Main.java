@@ -26,15 +26,17 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +73,7 @@ public class Main {
     private TrayIcon icon;
     private JFrame prefUI;
     private int separatorCharCount = 17;
+    private Date backupTime;
 
     static {
         try {
@@ -350,6 +353,19 @@ public class Main {
                         separatorCharCount = ((Long) value).intValue();
                         break;
                     }
+                    case BACKUP_TIME: {//2007-12-03T10:15:30.00Z
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");                        
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-mm-dd hh:mm a");
+                        String nowDate = String.format("%s %s", sdf.format(new Date()), value.toString());
+                        try {                                
+                            System.out.println(nowDate);
+                            backupTime = sdf2.parse(nowDate);
+                            LOG.info(String.format("backup time scheduled at %s", backupTime.toString()));                        
+                        } catch (ParseException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -358,13 +374,25 @@ public class Main {
 
             @Override
             public List<PreferenceEvent> subscribedEvents() {
-                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER, PreferenceEvent.SEPARATOR_CHAR_COUNT);
+                return Arrays.asList(PreferenceEvent.SUMMARY_FILTER, PreferenceEvent.SEPARATOR_CHAR_COUNT, PreferenceEvent.BACKUP_TIME);
             }
         };
     }
 
     protected void startNotificationService() {
 
+    }
+    
+    Runnable periodicBackup(){
+        return () ->{            
+            if(Instant.now().isAfter(backupTime.toInstant())){
+                NoteFileExporter noteExporter = new NoteFileExporter();
+                noteExporter.exportAllNotes(MANAGER, true);
+                LOG.info("Files backed up.");
+            }else{
+                LOG.info("...");
+            }
+        };
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -383,8 +411,9 @@ public class Main {
         app.startNotificationService();
         app.restoreSavedNotes();
         Runtime.getRuntime().addShutdownHook(app.shutdownHook());
-        ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
-        scheduled.scheduleAtFixedRate(app.shutdownHook(), 1, 60, TimeUnit.MINUTES);        
+        ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(2);
+        scheduled.scheduleAtFixedRate(app.shutdownHook(), 1, 60, TimeUnit.MINUTES);
+        scheduled.scheduleAtFixedRate(app.periodicBackup(), 0, 1, TimeUnit.MINUTES);
     }
 
 }
