@@ -88,7 +88,7 @@ public class NoteUtility {
 //    public static void main(String[] args) {
 //        String data = "test data\n"
 //                + "-----------------\n"
-//                + "https://crucible.corp.netsuite.com/cru/NETLEDGERRELEASENEWTON-1309#CFR-3608947\n"
+//                + ""
 //                + "-----------------\n"
 //                + "I have here a sample text";
 //        com.jon.postmenotes.DefaultNoteInstance note = new com.jon.postmenotes.DefaultNoteInstance(data);
